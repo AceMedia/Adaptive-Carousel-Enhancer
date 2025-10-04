@@ -1,0 +1,22 @@
+{
+  "name": "swiper-slider",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "wp-scripts build && npm run build:scss && npm run minify:css && npm run minify:js",
+    "build:scss": "sass src/style.scss build/ace-carousel-styles.css",
+    "minify:css": "sass src/style.scss build/ace-carousel-styles.css --style=compressed && cp build/ace-carousel-styles.css build/ace-carousel-styles.min.css",
+    "minify:js": "terser build/index.js -o build/index.js --compress --mangle && terser build/frontend.js -o build/frontend.js --compress --mangle",
+    "start": "wp-scripts start"
+  },
+  "devDependencies": {
+    "@wordpress/scripts": "^30.11.0",
+    "sass": "^1.89.2",
+    "sass-loader": "^16.0.5",
+    "terser": "^5.30.3"
+  },
+  "dependencies": {
+    "@wordpress/icons": "^10.26.0",
+    "swiper": "^11.1.0"
+  }
+}

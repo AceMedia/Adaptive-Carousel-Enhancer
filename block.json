@@ -1,0 +1,12 @@
+{
+  "apiVersion": 2,
+  "name": "ace/adaptive-carousel",
+  "title": "Adaptive Carousel Enhancer",
+  "description": "Gutenberg block that turns inner blocks into SwiperJS slides.",
+  "category": "layout",
+  "icon": "images-alt2",
+  "editorScript": "file:./build/index.js",
+  "script": "file:./build/frontend.js",
+  "editorStyle": "file:./build/ace-carousel-styles.css",
+  "style": "file:./build/ace-carousel-styles.css"
+}
