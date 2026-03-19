@@ -1,5 +1,27 @@
 import Swiper from 'swiper/bundle';
 
+// ---------------------------------------------------------------------------
+// Animation helpers
+// A single selector that matches any element carrying an entry-animation class.
+// `.animated` is the Animate.css base class; the named classes are the actual
+// animation identifiers (e.g. fadeInUp, bounceIn, slideInLeft …).
+// ---------------------------------------------------------------------------
+const ANIM_SELECTOR = [
+  '.animated',
+  '[class*="fadeIn"]', '[class*="bounceIn"]', '[class*="slideIn"]',
+  '[class*="zoomIn"]', '[class*="rotateIn"]', '[class*="flipIn"]',
+  '[class*="backIn"]', '[class*="lightSpeedIn"]', '[class*="rollIn"]',
+  '[class*="jackInTheBox"]', '[class*="bounce"]', '[class*="flash"]',
+  '[class*="pulse"]', '[class*="rubberBand"]', '[class*="shake"]',
+  '[class*="swing"]', '[class*="tada"]', '[class*="wobble"]',
+  '[class*="jello"]', '[class*="heartBeat"]', '[class*="hinge"]',
+].join(', ');
+
+// Returns true for actual animation-name classes (not the base `.animated` class).
+function isAnimClass(cls) {
+  return /fadeIn|bounceIn|slideIn|zoomIn|rotateIn|flipIn|backIn|lightSpeedIn|rollIn|jackInTheBox|bounce|flash|pulse|rubberBand|shake|swing|tada|wobble|jello|heartBeat|hinge/.test(cls);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const swiperContainers = document.querySelectorAll('.swiper-slider-block .swiper');
   
@@ -486,39 +508,19 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Add 3D hover effects to the new Swiper instance
         addCardHoverEffects(swiper);
-        
-        // Add animation trigger listener for the reinitialized Swiper
+
+        // Reset outgoing slide animations immediately on slide change.
         swiper.on('slideChange', function () {
-          triggerAnimationsInCurrentSlide(swiper, container);
+          hideAnimatedElementsInNonActiveSlides(container);
         });
 
-        // Additional events to ensure animations trigger on all slide changes for cards effect
-        swiper.on('slideChangeTransitionStart', function () {
-          setTimeout(() => {
-            triggerAnimationsInCurrentSlide(swiper, container);
-          }, 100);
-        });
-
+        // Replay animations once the transition is fully settled.
         swiper.on('slideChangeTransitionEnd', function () {
           triggerAnimationsInCurrentSlide(swiper, container);
         });
 
-        swiper.on('touchEnd', function () {
-          setTimeout(() => {
-            triggerAnimationsInCurrentSlide(swiper, container);
-          }, 150);
-        });
-
-        swiper.on('transitionStart', function () {
-          setTimeout(() => {
-            triggerAnimationsInCurrentSlide(swiper, container);
-          }, 100);
-        });
-        
         // Trigger animations in the initial slide for cards effect
-        setTimeout(() => {
-          triggerAnimationsInCurrentSlide(swiper, container);
-        }, 100);
+        triggerAnimationsInCurrentSlide(swiper, container);
       };
       
       // Function to add 3D hover effects only to active card
@@ -795,124 +797,111 @@ document.addEventListener('DOMContentLoaded', () => {
       container.classList.add('arrows-outside');
     }
 
-    // Optional: Add custom event listeners
+    // As soon as the slide change is committed, reset animatables in every
+    // slide that is no longer active so they are invisible and ready to
+    // replay next time they become active.
     swiper.on('slideChange', function () {
-      // Trigger animations in the current slide
-      triggerAnimationsInCurrentSlide(swiper, container);
+      hideAnimatedElementsInNonActiveSlides(container);
     });
 
-    // Additional events to ensure animations trigger on all slide changes
-    swiper.on('slideChangeTransitionStart', function () {
-      // Trigger animations when slide change transition starts
-      setTimeout(() => {
-        triggerAnimationsInCurrentSlide(swiper, container);
-      }, 100); // Small delay to ensure new active slide is properly set
-    });
-
+    // Only trigger the incoming animations once the transition is fully
+    // settled – this is the single source of truth for replay.
     swiper.on('slideChangeTransitionEnd', function () {
-      // Trigger animations when slide change transition ends (backup)
       triggerAnimationsInCurrentSlide(swiper, container);
-    });
-
-    // For touch/drag interactions
-    swiper.on('touchEnd', function () {
-      // Trigger animations after touch/drag ends
-      setTimeout(() => {
-        triggerAnimationsInCurrentSlide(swiper, container);
-      }, 150); // Delay to ensure slide change is complete
-    });
-
-    // For arrow clicks and programmatic changes
-    swiper.on('transitionStart', function () {
-      // Trigger animations when any transition starts
-      setTimeout(() => {
-        triggerAnimationsInCurrentSlide(swiper, container);
-      }, 100);
-    });
-
-    swiper.on('reachEnd', function () {
-      // Custom logic when reaching the end
-    });
-
-    swiper.on('reachBeginning', function () {
-      // Custom logic when reaching the beginning
     });
   });
 
   /**
-   * Function to hide animated elements in non-active slides
-   * @param {HTMLElement} container - The Swiper container element
+   * Reset an animated element back to its pre-animation hidden state.
+   * Crucially, ALL inline style overrides are removed so they cannot
+   * persist across slide visits and fight against the next animation replay.
+   */
+  function resetAnimatedElement(el) {
+    el.style.removeProperty('opacity');
+    el.style.removeProperty('visibility');
+    el.style.removeProperty('pointer-events');
+    el.style.removeProperty('animation-play-state');
+    el.classList.remove('ace-processed', 'ace-show');
+    el.classList.add('hidden-animated');
+  }
+
+  /**
+   * Hide every animated element in slides that are not currently active.
+   * Called as soon as a slide change is committed so that the outgoing
+   * slide's elements are reset before they scroll out of view.
    */
   function hideAnimatedElementsInNonActiveSlides(container) {
-    const allSlides = container.querySelectorAll('.swiper-slide');
-    allSlides.forEach(slide => {
-      if (!slide.classList.contains('swiper-slide-active')) {
-        const animatedElements = slide.querySelectorAll('.animated, [class*="fadeIn"], [class*="bounceIn"], [class*="slideIn"], [class*="zoomIn"], [class*="rotateIn"], [class*="flipIn"], [class*="backIn"], [class*="lightSpeedIn"], [class*="rollIn"], [class*="jackInTheBox"], [class*="bounce"], [class*="flash"], [class*="pulse"], [class*="rubberBand"], [class*="shake"], [class*="swing"], [class*="tada"], [class*="wobble"], [class*="jello"], [class*="heartBeat"], [class*="hinge"]');
-        
-        animatedElements.forEach(element => {
-          element.classList.add('hidden-animated');
-          element.classList.remove('ace-processed', 'ace-show');
-          // Ensure inline styles hide the element
-          element.style.opacity = '0';
-          element.style.visibility = 'hidden';
-          element.style.pointerEvents = 'none';
-        });
-      }
+    container.querySelectorAll('.swiper-slide').forEach(slide => {
+      if (slide.classList.contains('swiper-slide-active')) return;
+      slide.querySelectorAll(ANIM_SELECTOR).forEach(resetAnimatedElement);
     });
   }
 
   /**
-   * Function to trigger Blocks Animation plugin animations in the current slide
-   * @param {Swiper} swiper - The Swiper instance
-   * @param {HTMLElement} container - The Swiper container element
+   * Replay entry animations in the currently active slide.
+   *
+   * The sequence that avoids both the "snap visible" flicker and the
+   * "already in place on second pass" problem:
+   *
+   *  1. Reset ALL animatables across the whole carousel (strips stale
+   *     inline opacity/visibility, adds hidden-animated).
+   *  2. For elements in the active slide:
+   *     a. Remove named animation classes while hidden-animated is still
+   *        active – the element stays invisible, no partial flash.
+   *     b. Force a reflow to commit the removal.
+   *     c. Remove hidden-animated and re-add animation classes in the
+   *        same synchronous batch – the CSS @keyframes `from` block
+   *        (typically `opacity: 0`) takes exclusive control of opacity
+   *        from this point, so the animation plays cleanly from zero.
+   *     d. Listen for animationend (once) to mark the element processed.
+   *
+   * No inline opacity/visibility is ever SET here – letting the CSS
+   * animation own those values entirely is what makes the replay clean.
    */
   function triggerAnimationsInCurrentSlide(swiper, container) {
-    // Debouncing to prevent multiple rapid triggers
-    if (container.animationTimeout) {
-      clearTimeout(container.animationTimeout);
-    }
+    // Cancel any pending animation frame from a previous rapid call.
+    if (container._aceAnimFrame) cancelAnimationFrame(container._aceAnimFrame);
 
-    container.animationTimeout = setTimeout(() => {
+    container._aceAnimFrame = requestAnimationFrame(() => {
+      // Step 1: reset the whole carousel.
+      container.querySelectorAll(ANIM_SELECTOR).forEach(resetAnimatedElement);
 
-      // Ensure all animated elements are hidden immediately
-      const allAnimatedElements = container.querySelectorAll('.animated, [class*="fadeIn"], [class*="bounceIn"], [class*="slideIn"], [class*="zoomIn"], [class*="rotateIn"], [class*="flipIn"], [class*="backIn"], [class*="lightSpeedIn"], [class*="rollIn"], [class*="jackInTheBox"], [class*="bounce"], [class*="flash"], [class*="pulse"], [class*="rubberBand"], [class*="shake"], [class*="swing"], [class*="tada"], [class*="wobble"], [class*="jello"], [class*="heartBeat"], [class*="hinge"]');
-
-      allAnimatedElements.forEach(element => {
-        element.classList.add('hidden-animated');
-        element.style.opacity = '0';
-        element.style.visibility = 'hidden';
-        element.style.pointerEvents = 'none';
-      });
-
-      // Hide animated elements in all non-active slides
-      hideAnimatedElementsInNonActiveSlides(container);
-
-      // Get the current active slide
       const activeSlide = container.querySelector('.swiper-slide-active');
-      if (!activeSlide) {
-        return;
-      }
+      if (!activeSlide) return;
 
+      // Step 2: replay elements in the active slide after the reset
+      // paint has been committed by the browser.
+      requestAnimationFrame(() => {
+        activeSlide.querySelectorAll(ANIM_SELECTOR).forEach(el => {
+          const animClasses = Array.from(el.classList).filter(isAnimClass);
+          if (!animClasses.length) return;
 
-      // Find all elements with animation classes within the active slide
-      const animatedElements = activeSlide.querySelectorAll('.animated, [class*="fadeIn"], [class*="bounceIn"], [class*="slideIn"], [class*="zoomIn"], [class*="rotateIn"], [class*="flipIn"], [class*="backIn"], [class*="lightSpeedIn"], [class*="rollIn"], [class*="jackInTheBox"], [class*="bounce"], [class*="flash"], [class*="pulse"], [class*="rubberBand"], [class*="shake"], [class*="swing"], [class*="tada"], [class*="wobble"], [class*="jello"], [class*="heartBeat"], [class*="hinge"]');
+          // Strip any lingering inline overrides (e.g. set by 3rd-party
+          // animation plugins that have already fired once).
+          el.style.removeProperty('opacity');
+          el.style.removeProperty('visibility');
+          el.style.removeProperty('pointer-events');
+          el.style.removeProperty('animation-play-state');
 
-      animatedElements.forEach(element => {
-        // Reset animation by removing and re-adding animation classes
-        const animationClasses = Array.from(element.classList).filter(cls => cls.includes('fadeIn') || cls.includes('bounceIn') || cls.includes('slideIn') || cls.includes('zoomIn') || cls.includes('rotateIn') || cls.includes('flipIn') || cls.includes('backIn') || cls.includes('lightSpeedIn') || cls.includes('rollIn') || cls.includes('jackInTheBox') || cls.includes('bounce') || cls.includes('flash') || cls.includes('pulse') || cls.includes('rubberBand') || cls.includes('shake') || cls.includes('swing') || cls.includes('tada') || cls.includes('wobble') || cls.includes('jello') || cls.includes('heartBeat') || cls.includes('hinge'));
+          // Remove named animation classes while hidden-animated keeps
+          // the element invisible – no visible intermediate state.
+          animClasses.forEach(c => el.classList.remove(c));
 
-        animationClasses.forEach(animationClass => {
-          element.classList.remove(animationClass);
-          void element.offsetWidth; // Trigger reflow to restart animation
-          element.classList.add(animationClass);
+          // Commit the removal so the browser registers it as a new
+          // animation start when we add the classes back.
+          void el.offsetWidth;
+
+          // Lift the hidden state and fire the animation in one batch.
+          // The @keyframes `from` block now controls opacity from zero.
+          el.classList.remove('hidden-animated', 'ace-processed', 'ace-show');
+          animClasses.forEach(c => el.classList.add(c));
+
+          // Mark complete once the animation finishes.
+          el.addEventListener('animationend', () => {
+            el.classList.add('ace-processed');
+          }, { once: true });
         });
-
-        element.classList.remove('hidden-animated');
-        element.style.opacity = '1';
-        element.style.visibility = 'visible';
-        element.style.pointerEvents = 'auto';
-        element.classList.add('ace-processed');
       });
-    }, 50); // Increased delay to ensure slide transition is complete
+    });
   }
 });
