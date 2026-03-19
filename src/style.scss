@@ -1772,7 +1772,28 @@ $spacing-mobile: 10px;
 }
 
 /* Show processed animated elements in active slides when ready */
-.swiper-slide-active .animated.ace-processed:not(.ace-restarting):not(.hidden-animated) {
+.swiper-slide-active .animated.ace-processed:not(.ace-restarting):not(.hidden-animated),
+.swiper-slide-active [class*="fadeIn"].ace-processed:not(.ace-restarting):not(.hidden-animated),
+.swiper-slide-active [class*="bounceIn"].ace-processed:not(.ace-restarting):not(.hidden-animated),
+.swiper-slide-active [class*="slideIn"].ace-processed:not(.ace-restarting):not(.hidden-animated),
+.swiper-slide-active [class*="zoomIn"].ace-processed:not(.ace-restarting):not(.hidden-animated),
+.swiper-slide-active [class*="rotateIn"].ace-processed:not(.ace-restarting):not(.hidden-animated),
+.swiper-slide-active [class*="flipIn"].ace-processed:not(.ace-restarting):not(.hidden-animated),
+.swiper-slide-active [class*="backIn"].ace-processed:not(.ace-restarting):not(.hidden-animated),
+.swiper-slide-active [class*="lightSpeedIn"].ace-processed:not(.ace-restarting):not(.hidden-animated),
+.swiper-slide-active [class*="rollIn"].ace-processed:not(.ace-restarting):not(.hidden-animated),
+.swiper-slide-active [class*="jackInTheBox"].ace-processed:not(.ace-restarting):not(.hidden-animated),
+.swiper-slide-active [class*="bounce"].ace-processed:not(.ace-restarting):not(.hidden-animated),
+.swiper-slide-active [class*="flash"].ace-processed:not(.ace-restarting):not(.hidden-animated),
+.swiper-slide-active [class*="pulse"].ace-processed:not(.ace-restarting):not(.hidden-animated),
+.swiper-slide-active [class*="rubberBand"].ace-processed:not(.ace-restarting):not(.hidden-animated),
+.swiper-slide-active [class*="shake"].ace-processed:not(.ace-restarting):not(.hidden-animated),
+.swiper-slide-active [class*="swing"].ace-processed:not(.ace-restarting):not(.hidden-animated),
+.swiper-slide-active [class*="tada"].ace-processed:not(.ace-restarting):not(.hidden-animated),
+.swiper-slide-active [class*="wobble"].ace-processed:not(.ace-restarting):not(.hidden-animated),
+.swiper-slide-active [class*="jello"].ace-processed:not(.ace-restarting):not(.hidden-animated),
+.swiper-slide-active [class*="heartBeat"].ace-processed:not(.ace-restarting):not(.hidden-animated),
+.swiper-slide-active [class*="hinge"].ace-processed:not(.ace-restarting):not(.hidden-animated) {
   opacity: 1 !important;
   visibility: visible !important;
   pointer-events: auto !important;

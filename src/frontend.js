@@ -821,6 +821,15 @@ document.addEventListener('DOMContentLoaded', () => {
     el.style.removeProperty('visibility');
     el.style.removeProperty('pointer-events');
     el.style.removeProperty('animation-play-state');
+    el.style.removeProperty('animation');
+    el.style.removeProperty('animation-name');
+    el.style.removeProperty('animation-duration');
+    el.style.removeProperty('animation-delay');
+    el.style.removeProperty('animation-fill-mode');
+    el.style.removeProperty('animation-timing-function');
+    el.style.removeProperty('animation-iteration-count');
+    el.style.removeProperty('transform');
+    el.style.removeProperty('transition');
     el.classList.remove('ace-processed', 'ace-show');
     el.classList.add('hidden-animated');
   }
@@ -882,6 +891,15 @@ document.addEventListener('DOMContentLoaded', () => {
           el.style.removeProperty('visibility');
           el.style.removeProperty('pointer-events');
           el.style.removeProperty('animation-play-state');
+          el.style.removeProperty('animation');
+          el.style.removeProperty('animation-name');
+          el.style.removeProperty('animation-duration');
+          el.style.removeProperty('animation-delay');
+          el.style.removeProperty('animation-fill-mode');
+          el.style.removeProperty('animation-timing-function');
+          el.style.removeProperty('animation-iteration-count');
+          el.style.removeProperty('transform');
+          el.style.removeProperty('transition');
 
           // Remove named animation classes while hidden-animated keeps
           // the element invisible – no visible intermediate state.
