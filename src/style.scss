@@ -1732,6 +1732,36 @@ $spacing-mobile: 10px;
   animation-play-state: paused !important;
 }
 
+/* While an animation is actively playing in the active slide (hidden-animated has
+   been removed but ace-processed has not yet been added), keep pointer-events
+   suppressed.  This prevents an animating element that has escaped overflow:hidden
+   (e.g. a position:fixed JaraLlax parallax overlay) from intercepting events that
+   should reach the sticky header. */
+.swiper-slide-active .animated:not(.ace-processed):not(.hidden-animated),
+.swiper-slide-active [class*="fadeIn"]:not(.ace-processed):not(.hidden-animated),
+.swiper-slide-active [class*="bounceIn"]:not(.ace-processed):not(.hidden-animated),
+.swiper-slide-active [class*="slideIn"]:not(.ace-processed):not(.hidden-animated),
+.swiper-slide-active [class*="zoomIn"]:not(.ace-processed):not(.hidden-animated),
+.swiper-slide-active [class*="rotateIn"]:not(.ace-processed):not(.hidden-animated),
+.swiper-slide-active [class*="flipIn"]:not(.ace-processed):not(.hidden-animated),
+.swiper-slide-active [class*="backIn"]:not(.ace-processed):not(.hidden-animated),
+.swiper-slide-active [class*="lightSpeedIn"]:not(.ace-processed):not(.hidden-animated),
+.swiper-slide-active [class*="rollIn"]:not(.ace-processed):not(.hidden-animated),
+.swiper-slide-active [class*="jackInTheBox"]:not(.ace-processed):not(.hidden-animated),
+.swiper-slide-active [class*="bounce"]:not(.ace-processed):not(.hidden-animated),
+.swiper-slide-active [class*="flash"]:not(.ace-processed):not(.hidden-animated),
+.swiper-slide-active [class*="pulse"]:not(.ace-processed):not(.hidden-animated),
+.swiper-slide-active [class*="rubberBand"]:not(.ace-processed):not(.hidden-animated),
+.swiper-slide-active [class*="shake"]:not(.ace-processed):not(.hidden-animated),
+.swiper-slide-active [class*="swing"]:not(.ace-processed):not(.hidden-animated),
+.swiper-slide-active [class*="tada"]:not(.ace-processed):not(.hidden-animated),
+.swiper-slide-active [class*="wobble"]:not(.ace-processed):not(.hidden-animated),
+.swiper-slide-active [class*="jello"]:not(.ace-processed):not(.hidden-animated),
+.swiper-slide-active [class*="heartBeat"]:not(.ace-processed):not(.hidden-animated),
+.swiper-slide-active [class*="hinge"]:not(.ace-processed):not(.hidden-animated) {
+  pointer-events: none !important;
+}
+
 /* HIGHEST PRIORITY: Override to show elements that are being processed */
 .ace-show,
 .swiper-slide-active .ace-show {
