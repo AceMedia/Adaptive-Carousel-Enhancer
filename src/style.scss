@@ -1950,3 +1950,25 @@ $spacing-mobile: 10px;
 .swiper-slider-block .swiper-pagination-fraction {
   color: var(--bullet-color, #000000);
 }
+
+// ---------------------------------------------------------------------------
+// Pre-init FOUC guard
+// Before JS adds .swiper-initialized, the inner blocks lack .swiper-slide and
+// therefore lack flex-shrink:0 / width:100%, causing all slides to squish into
+// view at once.  These rules enforce correct proportions and clip extras until
+// Swiper takes control.
+// ---------------------------------------------------------------------------
+.swiper-slider-block .swiper:not(.swiper-initialized) {
+  overflow: hidden;
+
+  .swiper-wrapper > * {
+    flex-shrink: 0;
+    width: 100%;
+    min-width: 100%;
+  }
+
+  // Hide every slide after the first so there is no multi-slide flash
+  .swiper-wrapper > * + * {
+    display: none;
+  }
+}
