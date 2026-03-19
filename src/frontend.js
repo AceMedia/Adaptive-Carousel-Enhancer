@@ -912,6 +912,9 @@ document.addEventListener('DOMContentLoaded', () => {
           // Lift the hidden state and fire the animation in one batch.
           // The @keyframes `from` block now controls opacity from zero.
           el.classList.remove('hidden-animated', 'ace-processed', 'ace-show');
+          // Otter removes `.animated` on animationend and gates animations
+          // behind `.o-anim-ready`; ensure both are present for replay.
+          el.classList.add('animated', 'o-anim-ready');
           animClasses.forEach(c => el.classList.add(c));
 
           // Mark complete once the animation finishes.
