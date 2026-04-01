@@ -1172,6 +1172,11 @@ $spacing-mobile: 10px;
       border-radius: 2px;
     }
   }
+
+  .swiper-pagination-top.swiper-pagination-progressbar.swiper-pagination-horizontal {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
   
   .swiper-pagination-bottom {
     position: relative !important;
