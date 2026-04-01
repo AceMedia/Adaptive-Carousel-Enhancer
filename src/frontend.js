@@ -17,6 +17,8 @@ const ANIM_SELECTOR = [
   '[class*="jello"]', '[class*="heartBeat"]', '[class*="hinge"]',
 ].join(', ');
 
+const ANIMATION_RESET_DELAY = 120;
+
 // Returns true for actual animation-name classes (not the base `.animated` class).
 function isAnimClass(cls) {
   return /fadeIn|bounceIn|slideIn|zoomIn|rotateIn|flipIn|backIn|lightSpeedIn|rollIn|jackInTheBox|bounce|flash|pulse|rubberBand|shake|swing|tada|wobble|jello|heartBeat|hinge/.test(cls);
@@ -509,15 +511,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Add 3D hover effects to the new Swiper instance
         addCardHoverEffects(swiper);
 
-        // Reset outgoing slide animations immediately on slide change.
-        swiper.on('slideChange', function () {
-          hideAnimatedElementsInNonActiveSlides(container);
-        });
-
-        // Replay animations once the transition is fully settled.
-        swiper.on('slideChangeTransitionEnd', function () {
-          triggerAnimationsInCurrentSlide(swiper, container);
-        });
+        bindAnimationLifecycle(swiper, container);
 
         // Trigger animations in the initial slide for cards effect
         triggerAnimationsInCurrentSlide(swiper, container);
@@ -797,19 +791,39 @@ document.addEventListener('DOMContentLoaded', () => {
       container.classList.add('arrows-outside');
     }
 
-    // As soon as the slide change is committed, reset animatables in every
-    // slide that is no longer active so they are invisible and ready to
-    // replay next time they become active.
-    swiper.on('slideChange', function () {
+    bindAnimationLifecycle(swiper, container);
+  });
+
+  function clearPendingAnimationReset(container) {
+    if (container._aceResetTimer) {
+      clearTimeout(container._aceResetTimer);
+      container._aceResetTimer = null;
+    }
+  }
+
+  function scheduleAnimationReset(container, delay = ANIMATION_RESET_DELAY) {
+    clearPendingAnimationReset(container);
+
+    container._aceResetTimer = window.setTimeout(() => {
       hideAnimatedElementsInNonActiveSlides(container);
+      container._aceResetTimer = null;
+    }, delay);
+  }
+
+  function bindAnimationLifecycle(swiper, container) {
+    swiper.on('slideChangeTransitionStart', function () {
+      clearPendingAnimationReset(container);
     });
 
-    // Only trigger the incoming animations once the transition is fully
-    // settled – this is the single source of truth for replay.
     swiper.on('slideChangeTransitionEnd', function () {
+      scheduleAnimationReset(container);
       triggerAnimationsInCurrentSlide(swiper, container);
     });
-  });
+
+    swiper.on('destroy', function () {
+      clearPendingAnimationReset(container);
+    });
+  }
 
   /**
    * Reset an animated element back to its pre-animation hidden state.
@@ -849,20 +863,14 @@ document.addEventListener('DOMContentLoaded', () => {
   /**
    * Replay entry animations in the currently active slide.
    *
-   * The sequence that avoids both the "snap visible" flicker and the
-   * "already in place on second pass" problem:
+   * Inactive slides are reset separately after their transition finishes,
+   * so this function only needs to re-arm the elements inside the active
+   * slide before replaying their entry animation.
    *
-   *  1. Reset ALL animatables across the whole carousel (strips stale
-   *     inline opacity/visibility, adds hidden-animated).
-   *  2. For elements in the active slide:
-   *     a. Remove named animation classes while hidden-animated is still
-   *        active – the element stays invisible, no partial flash.
-   *     b. Force a reflow to commit the removal.
-   *     c. Remove hidden-animated and re-add animation classes in the
-   *        same synchronous batch – the CSS @keyframes `from` block
-   *        (typically `opacity: 0`) takes exclusive control of opacity
-   *        from this point, so the animation plays cleanly from zero.
-   *     d. Listen for animationend (once) to mark the element processed.
+   *  1. Reset active-slide animatables into the hidden base state.
+   *  2. Remove named animation classes while still hidden.
+   *  3. Force a reflow so the browser treats the next class add as a fresh run.
+   *  4. Lift the hidden state and re-add the animation classes in one batch.
    *
    * No inline opacity/visibility is ever SET here – letting the CSS
    * animation own those values entirely is what makes the replay clean.
@@ -872,16 +880,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (container._aceAnimFrame) cancelAnimationFrame(container._aceAnimFrame);
 
     container._aceAnimFrame = requestAnimationFrame(() => {
-      // Step 1: reset the whole carousel.
-      container.querySelectorAll(ANIM_SELECTOR).forEach(resetAnimatedElement);
-
       const activeSlide = container.querySelector('.swiper-slide-active');
       if (!activeSlide) return;
 
-      // Step 2: replay elements in the active slide after the reset
-      // paint has been committed by the browser.
+      // Replay elements in the active slide after the reset paint has
+      // been committed by the browser.
       requestAnimationFrame(() => {
         activeSlide.querySelectorAll(ANIM_SELECTOR).forEach(el => {
+          resetAnimatedElement(el);
+
           const animClasses = Array.from(el.classList).filter(isAnimClass);
           if (!animClasses.length) return;
 
