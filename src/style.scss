@@ -1696,35 +1696,6 @@ $spacing-mobile: 10px;
   animation-fill-mode: both !important;
 }
 
-/* Hide animated elements in non-active slides */
-.swiper-slide:not(.swiper-slide-active) .animated,
-.swiper-slide:not(.swiper-slide-active) [class*="fadeIn"],
-.swiper-slide:not(.swiper-slide-active) [class*="bounceIn"],
-.swiper-slide:not(.swiper-slide-active) [class*="slideIn"],
-.swiper-slide:not(.swiper-slide-active) [class*="zoomIn"],
-.swiper-slide:not(.swiper-slide-active) [class*="rotateIn"],
-.swiper-slide:not(.swiper-slide-active) [class*="flipIn"],
-.swiper-slide:not(.swiper-slide-active) [class*="backIn"],
-.swiper-slide:not(.swiper-slide-active) [class*="lightSpeedIn"],
-.swiper-slide:not(.swiper-slide-active) [class*="rollIn"],
-.swiper-slide:not(.swiper-slide-active) [class*="jackInTheBox"],
-.swiper-slide:not(.swiper-slide-active) [class*="bounce"],
-.swiper-slide:not(.swiper-slide-active) [class*="flash"],
-.swiper-slide:not(.swiper-slide-active) [class*="pulse"],
-.swiper-slide:not(.swiper-slide-active) [class*="rubberBand"],
-.swiper-slide:not(.swiper-slide-active) [class*="shake"],
-.swiper-slide:not(.swiper-slide-active) [class*="swing"],
-.swiper-slide:not(.swiper-slide-active) [class*="tada"],
-.swiper-slide:not(.swiper-slide-active) [class*="wobble"],
-.swiper-slide:not(.swiper-slide-active) [class*="jello"],
-.swiper-slide:not(.swiper-slide-active) [class*="heartBeat"],
-.swiper-slide:not(.swiper-slide-active) [class*="hinge"] {
-  opacity: 0 !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
-  animation-play-state: paused !important;
-}
-
 /* Hide elements during restart process */
 .ace-restarting {
   opacity: 0 !important;
