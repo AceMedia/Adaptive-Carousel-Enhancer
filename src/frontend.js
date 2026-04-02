@@ -44,7 +44,15 @@ function bindProgressbarAutoplayTimer(swiper, container, blockWrapper) {
 
   const autoplayDelay = Math.max(1000, parseInt(blockWrapper.dataset.autoplayDelay || '3000', 10));
 
-  const getProgressbarFill = () => container.querySelector('.swiper-pagination-progressbar-fill');
+  const getProgressbarFill = () => (
+    container.querySelector('.swiper-pagination-progressbar-fill') ||
+    blockWrapper.querySelector('.swiper-pagination-progressbar-fill')
+  );
+
+  const getProgressbarEl = () => (
+    container.querySelector('.swiper-pagination-progressbar') ||
+    blockWrapper.querySelector('.swiper-pagination-progressbar')
+  );
 
   const getTotalSlides = () => {
     if (swiper.params?.loop) {
@@ -66,10 +74,18 @@ function bindProgressbarAutoplayTimer(swiper, container, blockWrapper) {
     if (!fill) return;
 
     const clamped = Math.max(0, Math.min(1, value));
+    const progressbarEl = getProgressbarEl();
+
+    if (progressbarEl) {
+      progressbarEl.classList.add('ace-progressbar-timer-active');
+    }
+
     fill.style.transformOrigin = 'left top';
+    fill.style.transitionProperty = 'width';
     fill.style.transitionTimingFunction = 'linear';
     fill.style.transitionDuration = '1000ms';
-    fill.style.transform = `translate3d(0px, 0px, 0px) scaleX(${clamped}) scaleY(1)`;
+    fill.style.width = `${clamped * 100}%`;
+    fill.style.transform = 'translate3d(0px, 0px, 0px) scaleX(1) scaleY(1)';
   };
 
   const setChunkTimerProgress = (progress) => {

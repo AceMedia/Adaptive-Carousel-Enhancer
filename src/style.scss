@@ -2032,6 +2032,19 @@ $spacing-mobile: 10px;
   background-color: var(--bullet-color, #000000);
 }
 
+.swiper-slider-block[data-progressbar-autoplay-timer="true"] {
+  .swiper-pagination-progressbar.ace-progressbar-timer-active {
+    .swiper-pagination-progressbar-fill {
+      width: 0;
+      transform-origin: left top !important;
+      transform: translate3d(0px, 0px, 0px) scaleX(1) scaleY(1) !important;
+      transition-property: width !important;
+      transition-timing-function: linear !important;
+      will-change: width;
+    }
+  }
+}
+
 // Fraction pagination styling with color support
 .swiper-slider-block .swiper-pagination-fraction {
   color: var(--bullet-color, #000000);
