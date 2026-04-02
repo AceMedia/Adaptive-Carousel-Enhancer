@@ -1065,6 +1065,15 @@ $spacing-mobile: 10px;
   }
 }
 
+// Let equal-height JavaScript stretch all slides to one shared height.
+.swiper-slider-block {
+  .swiper:not(.swiper-autoheight) {
+    .swiper-wrapper {
+      align-items: stretch;
+    }
+  }
+}
+
 // Carousel preview mode styles
 .carousel-view {
   .swiper-preview-container {
