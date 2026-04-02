@@ -69,7 +69,7 @@ function bindProgressbarAutoplayTimer(swiper, container, blockWrapper) {
     return typeof swiper.activeIndex === 'number' ? swiper.activeIndex : 0;
   };
 
-  const setFillProgress = (value) => {
+  const setFillProgress = (value, durationMs = 0) => {
     const fill = getProgressbarFill();
     if (!fill) return;
 
@@ -83,7 +83,7 @@ function bindProgressbarAutoplayTimer(swiper, container, blockWrapper) {
     fill.style.transformOrigin = 'left top';
     fill.style.transitionProperty = 'width';
     fill.style.transitionTimingFunction = 'linear';
-    fill.style.transitionDuration = '0ms';
+    fill.style.transitionDuration = `${Math.max(0, durationMs)}ms`;
     fill.style.width = `${clamped * 100}%`;
     fill.style.transform = 'translate3d(0px, 0px, 0px) scaleX(1) scaleY(1)';
   };
@@ -132,7 +132,8 @@ function bindProgressbarAutoplayTimer(swiper, container, blockWrapper) {
       setFillProgress((endedSlide + 1) / total);
     } else {
       // Manual change: snap to the end of the selected/current slide and hold.
-      setFillProgress((current + 1) / total);
+      const manualTweenDuration = Math.max(120, parseInt(swiper.params?.speed || 300, 10));
+      setFillProgress((current + 1) / total, manualTweenDuration);
       manualHold = true;
     }
   });
