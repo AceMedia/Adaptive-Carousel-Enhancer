@@ -36,6 +36,14 @@ function bindProgressbarAutoplayTimer(swiper, container, blockWrapper) {
     return;
   }
 
+  // Clear any previous timer loop bound to this container.
+  if (container.__aceProgressbarTimerInterval) {
+    clearInterval(container.__aceProgressbarTimerInterval);
+    container.__aceProgressbarTimerInterval = null;
+  }
+
+  const autoplayDelay = Math.max(1000, parseInt(blockWrapper.dataset.autoplayDelay || '3000', 10));
+
   const getProgressbarFill = () => container.querySelector('.swiper-pagination-progressbar-fill');
 
   const getTotalSlides = () => {
@@ -60,7 +68,8 @@ function bindProgressbarAutoplayTimer(swiper, container, blockWrapper) {
     const clamped = Math.max(0, Math.min(1, value));
     fill.style.transformOrigin = 'left top';
     fill.style.transitionTimingFunction = 'linear';
-    fill.style.transform = `scaleX(${clamped})`;
+    fill.style.transitionDuration = '1000ms';
+    fill.style.transform = `translate3d(0px, 0px, 0px) scaleX(${clamped}) scaleY(1)`;
   };
 
   const setChunkTimerProgress = (progress) => {
@@ -71,19 +80,50 @@ function bindProgressbarAutoplayTimer(swiper, container, blockWrapper) {
     setFillProgress(overallProgress);
   };
 
+  let elapsedMsInCurrentSlide = 0;
+
+  const resetCurrentSlideTimer = () => {
+    elapsedMsInCurrentSlide = 0;
+    const total = Math.max(1, getTotalSlides());
+    const current = Math.max(0, Math.min(total - 1, getCurrentSlideIndex()));
+
+    // At loop reset, restart bar from 0 instead of staying at the last chunk.
+    const isLoopReset = swiper.params?.loop && current === 0;
+    setFillProgress(isLoopReset ? 0 : current / total);
+  };
+
+  const updateFromIntervalTick = () => {
+    if (!swiper.autoplay || swiper.autoplay.running === false) return;
+
+    elapsedMsInCurrentSlide = Math.min(autoplayDelay, elapsedMsInCurrentSlide + 1000);
+    const progress = 1 - (elapsedMsInCurrentSlide / autoplayDelay);
+    setChunkTimerProgress(progress);
+  };
+
   // Start at the beginning of the current slide's chunk.
   const totalSlides = Math.max(1, getTotalSlides());
   const currentSlide = Math.max(0, Math.min(totalSlides - 1, getCurrentSlideIndex()));
   setFillProgress(currentSlide / totalSlides);
 
   swiper.on('slideChangeTransitionStart', () => {
-    const total = Math.max(1, getTotalSlides());
-    const current = Math.max(0, Math.min(total - 1, getCurrentSlideIndex()));
-    setFillProgress(current / total);
+    resetCurrentSlideTimer();
   });
 
-  swiper.on('autoplayTimeLeft', (_instance, _timeLeft, progress) => {
-    setChunkTimerProgress(progress);
+  swiper.on('autoplayStart', () => {
+    resetCurrentSlideTimer();
+  });
+
+  swiper.on('autoplayStop', () => {
+    elapsedMsInCurrentSlide = 0;
+  });
+
+  container.__aceProgressbarTimerInterval = setInterval(updateFromIntervalTick, 1000);
+
+  swiper.on('destroy', () => {
+    if (container.__aceProgressbarTimerInterval) {
+      clearInterval(container.__aceProgressbarTimerInterval);
+      container.__aceProgressbarTimerInterval = null;
+    }
   });
 }
 
