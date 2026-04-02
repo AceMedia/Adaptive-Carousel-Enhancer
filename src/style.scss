@@ -2037,6 +2037,50 @@ $spacing-mobile: 10px;
   color: var(--bullet-color, #000000);
 }
 
+// Optional viewport behavior: allow neighboring slides to extend past the frame
+.swiper-slider-block[data-overflow-visible="true"] {
+  .swiper {
+    overflow: visible;
+  }
+}
+
+// Optional edge fade overlays for offscreen slide content
+.swiper-slider-block[data-edge-fade="true"] {
+  .swiper {
+    position: relative;
+    overflow: visible;
+
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: var(--edge-fade-size, 96px);
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    &::before {
+      left: 0;
+      background: linear-gradient(
+        to right,
+        var(--edge-fade-color, #ffffff) 0%,
+        rgba(255, 255, 255, 0) 100%
+      );
+    }
+
+    &::after {
+      right: 0;
+      background: linear-gradient(
+        to left,
+        var(--edge-fade-color, #ffffff) 0%,
+        rgba(255, 255, 255, 0) 100%
+      );
+    }
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Pre-init FOUC guard
 // Before JS adds .swiper-initialized, the inner blocks lack .swiper-slide and
@@ -2057,4 +2101,9 @@ $spacing-mobile: 10px;
   .swiper-wrapper > * + * {
     display: none;
   }
+}
+
+.swiper-slider-block[data-overflow-visible="true"] .swiper:not(.swiper-initialized),
+.swiper-slider-block[data-edge-fade="true"] .swiper:not(.swiper-initialized) {
+  overflow: visible;
 }

@@ -39,6 +39,7 @@ registerBlockType('ace/adaptive-carousel', {
     progressBar: { type: 'boolean', default: false },
     progressBarPosition: { type: 'string', default: 'bottom' },
     paginationSpacing: { type: 'boolean', default: false },
+    progressbarAutoplayTimer: { type: 'boolean', default: false },
     
     // Scrollbar
     showScrollbar: { type: 'boolean', default: false },
@@ -68,6 +69,11 @@ registerBlockType('ace/adaptive-carousel', {
     watchOverflow: { type: 'boolean', default: true },
     rewind: { type: 'boolean', default: false },
     allowTouchMove: { type: 'boolean', default: true },
+
+    // Viewport behavior
+    overflowVisible: { type: 'boolean', default: false },
+    edgeFade: { type: 'boolean', default: false },
+    edgeFadeSize: { type: 'number', default: 96 },
   },
 
   edit: ({ attributes, setAttributes }) => {
@@ -104,11 +110,15 @@ registerBlockType('ace/adaptive-carousel', {
       progressBar,
       progressBarPosition,
       paginationSpacing,
+      progressbarAutoplayTimer,
       arrowsOutside,
       arrowContrastMode,
       bulletContrastMode,
       timerColor,
-      timerContrastMode
+      timerContrastMode,
+      overflowVisible,
+      edgeFade,
+      edgeFadeSize
     } = attributes;
 
     const defaultArrowColor = arrowColor || '#000000';
@@ -357,7 +367,49 @@ registerBlockType('ace/adaptive-carousel', {
                     />
                   </div>
                 )}
+
+                {showPagination && paginationType === 'progressbar' && (
+                  <ToggleControl
+                    label={__('Use Progress Bar as Timer', 'adaptive-carousel')}
+                    checked={progressbarAutoplayTimer}
+                    onChange={(value) => setAttributes({ progressbarAutoplayTimer: value })}
+                    help={__('Fills the progress bar linearly from empty to full for each autoplay interval', 'adaptive-carousel')}
+                  />
+                )}
               </>
+            )}
+          </PanelBody>
+
+          <PanelBody title={__('Viewport & Fade', 'adaptive-carousel')} initialOpen={false}>
+            <ToggleControl
+              label={__('Allow Overflow Outside Slider', 'adaptive-carousel')}
+              checked={overflowVisible}
+              onChange={(value) => setAttributes({
+                overflowVisible: value,
+                edgeFade: value ? edgeFade : false,
+              })}
+              help={__('Lets neighboring slides render outside the slider viewport', 'adaptive-carousel')}
+            />
+
+            <ToggleControl
+              label={__('Fade Edges Outside View', 'adaptive-carousel')}
+              checked={edgeFade}
+              onChange={(value) => setAttributes({
+                edgeFade: value,
+                overflowVisible: value ? true : overflowVisible,
+              })}
+              help={__('Adds left/right fade masks so offscreen slide content fades out instead of clipping hard', 'adaptive-carousel')}
+            />
+
+            {edgeFade && (
+              <RangeControl
+                label={__('Edge Fade Size (px)', 'adaptive-carousel')}
+                min={16}
+                max={220}
+                step={2}
+                value={edgeFadeSize}
+                onChange={(value) => setAttributes({ edgeFadeSize: value })}
+              />
             )}
           </PanelBody>
 
@@ -483,11 +535,15 @@ registerBlockType('ace/adaptive-carousel', {
       progressBar,
       progressBarPosition,
       paginationSpacing,
+      progressbarAutoplayTimer,
       arrowsOutside,
       arrowContrastMode,
       bulletContrastMode,
       timerColor,
-      timerContrastMode
+      timerContrastMode,
+      overflowVisible,
+      edgeFade,
+      edgeFadeSize
     } = attributes;
 
     return (
@@ -498,7 +554,8 @@ registerBlockType('ace/adaptive-carousel', {
             '--progress-bar-color': bulletColor || '#000000',
             '--timer-color': timerColor || '#FFFFFF',
             '--bullet-color': bulletColor || '#000000',
-            '--arrow-color': arrowColor || '#000000'
+            '--arrow-color': arrowColor || '#000000',
+            '--edge-fade-size': `${edgeFadeSize || 96}px`
           },
           'data-slides': slidesPerView,
           'data-space-between': spaceBetween,
@@ -530,11 +587,14 @@ registerBlockType('ace/adaptive-carousel', {
           'data-bullet-color': bulletColor,
           'data-progress-bar-position': progressBarPosition,
           'data-pagination-spacing': paginationSpacing,
+          'data-progressbar-autoplay-timer': progressbarAutoplayTimer,
           'data-arrows-outside': arrowsOutside,
           'data-arrow-contrast-mode': arrowContrastMode,
           'data-bullet-contrast-mode': bulletContrastMode,
           'data-timer-color': timerColor,
           'data-timer-contrast-mode': timerContrastMode,
+          'data-overflow-visible': overflowVisible,
+          'data-edge-fade': edgeFade,
         })}
       >
         {showPagination && paginationType === 'progressbar' && progressBarPosition === 'top' && (

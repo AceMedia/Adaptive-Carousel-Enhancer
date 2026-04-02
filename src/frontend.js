@@ -24,6 +24,41 @@ function isAnimClass(cls) {
   return /fadeIn|bounceIn|slideIn|zoomIn|rotateIn|flipIn|backIn|lightSpeedIn|rollIn|jackInTheBox|bounce|flash|pulse|rubberBand|shake|swing|tada|wobble|jello|heartBeat|hinge/.test(cls);
 }
 
+function bindProgressbarAutoplayTimer(swiper, container, blockWrapper) {
+  if (!swiper || !container || !blockWrapper) return;
+
+  const useProgressbarTimer = blockWrapper.dataset.progressbarAutoplayTimer === 'true';
+  const showPagination = blockWrapper.dataset.showPagination !== 'false';
+  const paginationType = blockWrapper.dataset.paginationType || 'bullets';
+  const autoplayEnabled = blockWrapper.dataset.autoplay === 'true';
+
+  if (!useProgressbarTimer || !showPagination || paginationType !== 'progressbar' || !autoplayEnabled) {
+    return;
+  }
+
+  const getProgressbarFill = () => container.querySelector('.swiper-pagination-progressbar-fill');
+
+  const setFillProgress = (value) => {
+    const fill = getProgressbarFill();
+    if (!fill) return;
+
+    const clamped = Math.max(0, Math.min(1, value));
+    fill.style.transformOrigin = 'left top';
+    fill.style.transitionTimingFunction = 'linear';
+    fill.style.transform = `scaleX(${clamped})`;
+  };
+
+  setFillProgress(0);
+
+  swiper.on('slideChangeTransitionStart', () => {
+    setFillProgress(0);
+  });
+
+  swiper.on('autoplayTimeLeft', (_instance, _timeLeft, progress) => {
+    setFillProgress(1 - progress);
+  });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const swiperContainers = document.querySelectorAll('.swiper-slider-block .swiper');
   
@@ -306,6 +341,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize Swiper with configuration
     let swiper = new Swiper(container, config);
 
+    bindProgressbarAutoplayTimer(swiper, container, blockWrapper);
+
     // Immediately hide all animated elements to prevent initial flicker
     const allAnimatedElements = container.querySelectorAll('.animated, [class*="fadeIn"], [class*="bounceIn"], [class*="slideIn"], [class*="zoomIn"], [class*="rotateIn"], [class*="flipIn"], [class*="backIn"], [class*="lightSpeedIn"], [class*="rollIn"], [class*="jackInTheBox"], [class*="bounce"], [class*="flash"], [class*="pulse"], [class*="rubberBand"], [class*="shake"], [class*="swing"], [class*="tada"], [class*="wobble"], [class*="jello"], [class*="heartBeat"], [class*="hinge"]');
     
@@ -436,6 +473,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Reinitialize Swiper with updated config
         swiper = new Swiper(container, config);
+
+        bindProgressbarAutoplayTimer(swiper, container, blockWrapper);
         
         // Force create autoplay progress circle if autoplay is enabled
         if (autoplay) {
