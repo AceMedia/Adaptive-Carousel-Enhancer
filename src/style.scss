@@ -1065,9 +1065,12 @@ $spacing-mobile: 10px;
   }
 }
 
-// CSS-only equal-height slides: in a flex row, align-items: stretch makes each
-// slide match the tallest sibling. We then let each slide's direct child stretch
-// so slide internals fill the full equalized height.
+// CSS-only equal-height slides.
+// `align-items: stretch` on the flex wrapper makes every slide grow to match
+// the tallest sibling. `height: auto !important` is required to override Swiper's
+// own inline `height: Xpx` style that would otherwise pin each slide.
+// `flex-direction: column` + `flex: 1 1 auto` on the direct child then ensures
+// that inner block content fills the full equalized slide height.
 .swiper-slider-block {
   .swiper:not(.swiper-autoheight) {
     .swiper-wrapper {
@@ -1075,12 +1078,14 @@ $spacing-mobile: 10px;
     }
 
     .swiper-slide {
-      height: auto;
+      height: auto !important; // beats Swiper's inline height: Xpx
       display: flex;
+      flex-direction: column;
     }
 
     .swiper-slide > * {
       flex: 1 1 auto;
+      min-height: 0;
       width: 100%;
     }
   }
