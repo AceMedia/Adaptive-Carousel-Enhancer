@@ -38,6 +38,21 @@ function bindProgressbarAutoplayTimer(swiper, container, blockWrapper) {
 
   const getProgressbarFill = () => container.querySelector('.swiper-pagination-progressbar-fill');
 
+  const getTotalSlides = () => {
+    if (swiper.params?.loop) {
+      const uniqueSlides = container.querySelectorAll('.swiper-wrapper > .swiper-slide:not(.swiper-slide-duplicate)');
+      return uniqueSlides.length || swiper.slides.length || 1;
+    }
+    return swiper.slides.length || 1;
+  };
+
+  const getCurrentSlideIndex = () => {
+    if (typeof swiper.realIndex === 'number') {
+      return swiper.realIndex;
+    }
+    return typeof swiper.activeIndex === 'number' ? swiper.activeIndex : 0;
+  };
+
   const setFillProgress = (value) => {
     const fill = getProgressbarFill();
     if (!fill) return;
@@ -48,14 +63,27 @@ function bindProgressbarAutoplayTimer(swiper, container, blockWrapper) {
     fill.style.transform = `scaleX(${clamped})`;
   };
 
-  setFillProgress(0);
+  const setChunkTimerProgress = (progress) => {
+    const totalSlides = Math.max(1, getTotalSlides());
+    const currentSlide = Math.max(0, Math.min(totalSlides - 1, getCurrentSlideIndex()));
+    const elapsedInSlide = Math.max(0, Math.min(1, 1 - progress));
+    const overallProgress = (currentSlide + elapsedInSlide) / totalSlides;
+    setFillProgress(overallProgress);
+  };
+
+  // Start at the beginning of the current slide's chunk.
+  const totalSlides = Math.max(1, getTotalSlides());
+  const currentSlide = Math.max(0, Math.min(totalSlides - 1, getCurrentSlideIndex()));
+  setFillProgress(currentSlide / totalSlides);
 
   swiper.on('slideChangeTransitionStart', () => {
-    setFillProgress(0);
+    const total = Math.max(1, getTotalSlides());
+    const current = Math.max(0, Math.min(total - 1, getCurrentSlideIndex()));
+    setFillProgress(current / total);
   });
 
   swiper.on('autoplayTimeLeft', (_instance, _timeLeft, progress) => {
-    setFillProgress(1 - progress);
+    setChunkTimerProgress(progress);
   });
 }
 
@@ -234,6 +262,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Autoplay
     const autoplay = blockWrapper?.dataset.autoplay === 'true';
+    const useProgressbarAsTimer = autoplay && showPagination && paginationType === 'progressbar' && blockWrapper?.dataset.progressbarAutoplayTimer === 'true';
     if (autoplay) {
       const autoplayDelay = parseInt(blockWrapper?.dataset.autoplayDelay || '3000', 10);
       const pauseOnMouseEnter = blockWrapper?.dataset.autoplayPauseOnMouseEnter !== 'false';
@@ -362,7 +391,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 100); // Reduced delay for faster response
 
     // Force create autoplay progress circle if autoplay is enabled
-    if (autoplay) {
+    if (autoplay && !useProgressbarAsTimer) {
       // Create the progress circle with a timeout to ensure Swiper is fully initialized
       setTimeout(() => {
         let autoplayProgress = container.querySelector(".autoplay-progress");
@@ -431,6 +460,11 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         }
       }, 100);
+    } else if (useProgressbarAsTimer) {
+      const autoplayProgress = container.querySelector('.autoplay-progress');
+      if (autoplayProgress) {
+        autoplayProgress.remove();
+      }
     }
 
     // Custom JavaScript functions for cards effect
@@ -477,7 +511,7 @@ document.addEventListener('DOMContentLoaded', () => {
         bindProgressbarAutoplayTimer(swiper, container, blockWrapper);
         
         // Force create autoplay progress circle if autoplay is enabled
-        if (autoplay) {
+        if (autoplay && !useProgressbarAsTimer) {
           setTimeout(() => {
             let autoplayProgress = container.querySelector(".autoplay-progress");
             
@@ -545,6 +579,11 @@ document.addEventListener('DOMContentLoaded', () => {
               }
             }
           }, 100);
+        } else if (useProgressbarAsTimer) {
+          const autoplayProgress = container.querySelector('.autoplay-progress');
+          if (autoplayProgress) {
+            autoplayProgress.remove();
+          }
         }
         
         // Add 3D hover effects to the new Swiper instance
