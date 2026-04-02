@@ -43,6 +43,7 @@ function bindProgressbarAutoplayTimer(swiper, container, blockWrapper) {
   }
 
   const autoplayDelay = Math.max(1000, parseInt(blockWrapper.dataset.autoplayDelay || '3000', 10));
+  const transitionSpeed = Math.max(0, parseInt(blockWrapper.dataset.speed || '300', 10));
 
   const getProgressbarFill = () => (
     container.querySelector('.swiper-pagination-progressbar-fill') ||
@@ -97,6 +98,8 @@ function bindProgressbarAutoplayTimer(swiper, container, blockWrapper) {
   };
 
   let elapsedMsInCurrentSlide = 0;
+  let isTransitioning = false;
+  let previousSlideIndex = getCurrentSlideIndex();
 
   const resetCurrentSlideTimer = () => {
     elapsedMsInCurrentSlide = 0;
@@ -110,6 +113,7 @@ function bindProgressbarAutoplayTimer(swiper, container, blockWrapper) {
 
   const updateFromIntervalTick = () => {
     if (!swiper.autoplay || swiper.autoplay.running === false) return;
+    if (isTransitioning) return;
 
     elapsedMsInCurrentSlide = Math.min(autoplayDelay, elapsedMsInCurrentSlide + 1000);
     const progress = 1 - (elapsedMsInCurrentSlide / autoplayDelay);
@@ -122,7 +126,21 @@ function bindProgressbarAutoplayTimer(swiper, container, blockWrapper) {
   setFillProgress(currentSlide / totalSlides);
 
   swiper.on('slideChangeTransitionStart', () => {
-    resetCurrentSlideTimer();
+    isTransitioning = true;
+
+    const total = Math.max(1, getTotalSlides());
+    const endedSlide = Math.max(0, Math.min(total - 1, previousSlideIndex));
+    setFillProgress((endedSlide + 1) / total);
+  });
+
+  swiper.on('slideChangeTransitionEnd', () => {
+    previousSlideIndex = getCurrentSlideIndex();
+
+    // Keep bar stable through the visual transition duration, then start next chunk.
+    setTimeout(() => {
+      isTransitioning = false;
+      resetCurrentSlideTimer();
+    }, transitionSpeed);
   });
 
   swiper.on('autoplayStart', () => {
