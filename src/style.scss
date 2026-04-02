@@ -1065,11 +1065,23 @@ $spacing-mobile: 10px;
   }
 }
 
-// Let equal-height JavaScript stretch all slides to one shared height.
+// CSS-only equal-height slides: in a flex row, align-items: stretch makes each
+// slide match the tallest sibling. We then let each slide's direct child stretch
+// so slide internals fill the full equalized height.
 .swiper-slider-block {
   .swiper:not(.swiper-autoheight) {
     .swiper-wrapper {
       align-items: stretch;
+    }
+
+    .swiper-slide {
+      height: auto;
+      display: flex;
+    }
+
+    .swiper-slide > * {
+      flex: 1 1 auto;
+      width: 100%;
     }
   }
 }

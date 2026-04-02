@@ -24,87 +24,6 @@ function isAnimClass(cls) {
   return /fadeIn|bounceIn|slideIn|zoomIn|rotateIn|flipIn|backIn|lightSpeedIn|rollIn|jackInTheBox|bounce|flash|pulse|rubberBand|shake|swing|tada|wobble|jello|heartBeat|hinge/.test(cls);
 }
 
-function setupEqualSlideHeights(swiper, container) {
-  let animationFrame = null;
-
-  const getSlides = () => {
-    const wrapper = container.querySelector('.swiper-wrapper');
-    if (!wrapper) return [];
-    return Array.from(wrapper.children).filter((child) => child.classList.contains('swiper-slide'));
-  };
-
-  const applyEqualHeights = () => {
-    animationFrame = null;
-    if (!swiper || swiper.destroyed) return;
-
-    const slides = getSlides();
-    if (!slides.length) return;
-
-    // Reset before measuring to avoid stale fixed heights skewing max size.
-    slides.forEach((slide) => {
-      slide.style.height = 'auto';
-    });
-
-    let maxHeight = 0;
-    slides.forEach((slide) => {
-      const height = slide.getBoundingClientRect().height;
-      if (height > maxHeight) {
-        maxHeight = height;
-      }
-    });
-
-    if (maxHeight <= 0) return;
-
-    const finalHeight = `${Math.ceil(maxHeight)}px`;
-    slides.forEach((slide) => {
-      slide.style.height = finalHeight;
-    });
-  };
-
-  const scheduleEqualHeights = () => {
-    if (animationFrame) {
-      cancelAnimationFrame(animationFrame);
-    }
-    animationFrame = requestAnimationFrame(applyEqualHeights);
-  };
-
-  const handleWindowResize = () => {
-    scheduleEqualHeights();
-  };
-
-  window.addEventListener('resize', handleWindowResize, { passive: true });
-  swiper.on('init', scheduleEqualHeights);
-  swiper.on('update', scheduleEqualHeights);
-  swiper.on('resize', scheduleEqualHeights);
-  swiper.on('breakpoint', scheduleEqualHeights);
-  swiper.on('observerUpdate', scheduleEqualHeights);
-  swiper.on('imagesReady', scheduleEqualHeights);
-  swiper.on('slidesLengthChange', scheduleEqualHeights);
-
-  const mediaElements = container.querySelectorAll('img, video, iframe');
-  mediaElements.forEach((media) => {
-    media.addEventListener('load', scheduleEqualHeights);
-    media.addEventListener('loadedmetadata', scheduleEqualHeights);
-  });
-
-  swiper.on('destroy', () => {
-    if (animationFrame) {
-      cancelAnimationFrame(animationFrame);
-      animationFrame = null;
-    }
-
-    window.removeEventListener('resize', handleWindowResize);
-    mediaElements.forEach((media) => {
-      media.removeEventListener('load', scheduleEqualHeights);
-      media.removeEventListener('loadedmetadata', scheduleEqualHeights);
-    });
-  });
-
-  // Initial pass plus a delayed second pass for late-rendering block content.
-  scheduleEqualHeights();
-  setTimeout(scheduleEqualHeights, 150);
-}
-
 document.addEventListener('DOMContentLoaded', () => {
   const swiperContainers = document.querySelectorAll('.swiper-slider-block .swiper');
   
@@ -386,7 +305,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize Swiper with configuration
     let swiper = new Swiper(container, config);
-    setupEqualSlideHeights(swiper, container);
 
     // Immediately hide all animated elements to prevent initial flicker
     const allAnimatedElements = container.querySelectorAll('.animated, [class*="fadeIn"], [class*="bounceIn"], [class*="slideIn"], [class*="zoomIn"], [class*="rotateIn"], [class*="flipIn"], [class*="backIn"], [class*="lightSpeedIn"], [class*="rollIn"], [class*="jackInTheBox"], [class*="bounce"], [class*="flash"], [class*="pulse"], [class*="rubberBand"], [class*="shake"], [class*="swing"], [class*="tada"], [class*="wobble"], [class*="jello"], [class*="heartBeat"], [class*="hinge"]');
@@ -518,7 +436,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Reinitialize Swiper with updated config
         swiper = new Swiper(container, config);
-        setupEqualSlideHeights(swiper, container);
         
         // Force create autoplay progress circle if autoplay is enabled
         if (autoplay) {
@@ -864,7 +781,6 @@ document.addEventListener('DOMContentLoaded', () => {
       // Re-initialize Swiper with new structure
       swiper.destroy(true, false); // Don't remove elements, just destroy instance
       swiper = new Swiper(container, config);
-      setupEqualSlideHeights(swiper, container);
       
       // Apply enhanced styling classes
       blockWrapper.setAttribute('data-arrows-outside', 'true');
