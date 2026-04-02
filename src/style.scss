@@ -1101,6 +1101,21 @@ $spacing-mobile: 10px;
       display: flex;
       flex-direction: column;
     }
+
+    .swiper-slide > .wp-block-columns.are-vertically-aligned-top > .wp-block-column,
+    .swiper-slide > .wp-block-columns > .wp-block-column.is-vertically-aligned-top {
+      justify-content: flex-start;
+    }
+
+    .swiper-slide > .wp-block-columns.are-vertically-aligned-center > .wp-block-column,
+    .swiper-slide > .wp-block-columns > .wp-block-column.is-vertically-aligned-center {
+      justify-content: center;
+    }
+
+    .swiper-slide > .wp-block-columns.are-vertically-aligned-bottom > .wp-block-column,
+    .swiper-slide > .wp-block-columns > .wp-block-column.is-vertically-aligned-bottom {
+      justify-content: flex-end;
+    }
   }
 }
 
