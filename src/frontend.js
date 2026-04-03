@@ -36,12 +36,6 @@ function bindProgressbarAutoplayTimer(swiper, container, blockWrapper) {
     return;
   }
 
-  // Clear any previous timer loop bound to this container.
-  if (container.__aceProgressbarTimerInterval) {
-    clearInterval(container.__aceProgressbarTimerInterval);
-    container.__aceProgressbarTimerInterval = null;
-  }
-
   const autoplayDelay = Math.max(1000, parseInt(blockWrapper.dataset.autoplayDelay || '3000', 10));
 
   const getProgressbarFill = () => (
@@ -98,7 +92,7 @@ function bindProgressbarAutoplayTimer(swiper, container, blockWrapper) {
 
   let isTransitioning = false;
   let previousSlideIndex = getCurrentSlideIndex();
-  let lastChangeWasAutoplay = false;
+  let userInteractionPending = false;
   let manualHold = false;
 
   const resetCurrentSlideTimer = () => {
@@ -115,10 +109,20 @@ function bindProgressbarAutoplayTimer(swiper, container, blockWrapper) {
   const currentSlide = Math.max(0, Math.min(totalSlides - 1, getCurrentSlideIndex()));
   setFillProgress(currentSlide / totalSlides);
 
-  swiper.on('autoplay', () => {
-    lastChangeWasAutoplay = true;
-    manualHold = false;
-  });
+  // Mark likely manual interactions so manual-only timer behavior is deterministic.
+  container.addEventListener('pointerdown', () => {
+    userInteractionPending = true;
+  }, true);
+
+  container.addEventListener('touchstart', () => {
+    userInteractionPending = true;
+  }, { passive: true, capture: true });
+
+  container.addEventListener('click', (event) => {
+    if (event.target.closest('.swiper-button-next, .swiper-button-prev, .swiper-pagination')) {
+      userInteractionPending = true;
+    }
+  }, true);
 
   swiper.on('slideChangeTransitionStart', () => {
     isTransitioning = true;
@@ -126,12 +130,12 @@ function bindProgressbarAutoplayTimer(swiper, container, blockWrapper) {
     const total = Math.max(1, getTotalSlides());
     const current = Math.max(0, Math.min(total - 1, getCurrentSlideIndex()));
 
-    if (lastChangeWasAutoplay) {
+    if (!userInteractionPending) {
       // Autoplay-driven change: finish the chunk for the slide that just ended.
       const endedSlide = Math.max(0, Math.min(total - 1, previousSlideIndex));
       setFillProgress((endedSlide + 1) / total);
     } else {
-      // Manual change: snap to the end of the selected/current slide and hold.
+      // Manual change: animate to the end of the selected/current slide and hold.
       const manualTweenDuration = Math.max(120, parseInt(swiper.params?.speed || 300, 10));
       setFillProgress((current + 1) / total, manualTweenDuration);
       manualHold = true;
@@ -141,13 +145,13 @@ function bindProgressbarAutoplayTimer(swiper, container, blockWrapper) {
   swiper.on('slideChangeTransitionEnd', () => {
     previousSlideIndex = getCurrentSlideIndex();
 
-    if (lastChangeWasAutoplay) {
+    if (!userInteractionPending) {
       // Resume timer from start of next chunk for autoplay flow.
       resetCurrentSlideTimer();
     }
 
     isTransitioning = false;
-    lastChangeWasAutoplay = false;
+    userInteractionPending = false;
   });
 
   swiper.on('autoplayStart', () => {
