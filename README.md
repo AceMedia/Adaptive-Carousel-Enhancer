@@ -1,126 +1,127 @@
 # Ace Adaptive Carousel Enhancer
 
-A powerful WordPress Gutenberg block for creating beautiful, responsive carousels using Swiper.js.
+`Ace Adaptive Carousel Enhancer` is a Gutenberg block plugin that turns nested block content into a Swiper-powered carousel on the frontend.
 
-## Features
+The block is registered as `ace/adaptive-carousel` and uses a PHP render callback to ensure each direct child inside the generated `.swiper-wrapper` receives the `swiper-slide` class.
 
-### Comprehensive Swiper.js Integration
-- **Multiple Effects**: Slide, Fade, Cube, Coverflow, Flip, Cards
-- **Navigation**: Customizable arrows with show/hide options
-- **Pagination**: Bullets, Fraction, Progress Bar with clickable options
-- **Scrollbar**: Optional draggable scrollbar
-- **Autoplay**: Full autoplay control with pause options
-- **Responsive**: Built-in breakpoints for all devices
+## What The Plugin Does
 
-### Advanced Controls
-- **Behavior Settings**: Free mode, keyboard, mousewheel, touch controls
-- **Visual Options**: Grab cursor, centered slides, custom spacing
-- **Performance**: Watch overflow, rewind mode, slides per group
-- **Effects**: Fade crossfade, cube shadows, coverflow depth
+- Registers a configurable carousel block for the WordPress block editor
+- Outputs Swiper-compatible markup on save/render
+- Initializes the frontend carousel from block `data-*` attributes
+- Supports multiple navigation, pagination, autoplay, and transition configurations
+- Adds styling and behavior for overflow-visible layouts, edge fades, autoplay timers, and animation replay handling
 
-### Editor Experience
+## Frontend Feature Summary
 
-#### **Dual View Modes**
-The block features two distinct editing modes for optimal workflow:
+### Core Carousel Controls
 
-**📋 List View (Default)**
-- All slides displayed as individual blocks
-- Full editing capabilities for content
-- Vertical layout for easy access
-- Perfect for content creation and editing
-- Numbered slides with clear visual separation
+- Horizontal and vertical direction
+- Configurable `slidesPerView`
+- Configurable `spaceBetween`
+- Loop, speed, rewind, watch overflow, and slides per group
+- Optional touch, keyboard, mousewheel, free mode, centered slides, and grab cursor behavior
 
-**🎠 Carousel View (Preview Mode)**
-- Live Swiper preview exactly as it appears on frontend
-- **Automatic asset loading**: Swiper.js and CSS loaded when needed
-- Interactive navigation, pagination, and controls
-- Real-time testing of all settings and effects
-- Read-only mode (content editing disabled)
-- Perfect for testing carousel behavior and settings
+### Navigation And Pagination
 
-#### **Easy Mode Switching**
-- **Toolbar Button**: Click the list/desktop icon in the block toolbar
-- **Inspector Control**: Toggle in the Editor Settings panel
-- **Visual Feedback**: Clear headers and styling for each mode
-- **Instant switching**: No page reload required
+- Optional next/previous arrows
+- Arrow color or contrast mode
+- Optional arrows-outside layout
+- Bullet, fraction, or progress bar pagination
+- Clickable pagination
+- Optional external pagination spacing
+- Progress bar placement above or below the slider
+- Optional draggable scrollbar
 
-### Settings Organization
+### Autoplay
 
-Settings are organized into logical panels:
+- Enable/disable autoplay
+- Adjustable delay
+- Pause on mouse enter
+- Disable on interaction
+- Optional autoplay timer styling
+- Optional use of the progress bar as an autoplay timer
+- Recent timer handling improvements already merged into the current standalone repo
 
-1. **Editor Settings** - View mode controls
-2. **Basic Settings** - Core carousel configuration
-3. **Navigation** - Arrow controls
-4. **Pagination** - Bullet/fraction/progress options
-5. **Scrollbar** - Optional scrollbar settings
-6. **Autoplay** - Automatic progression controls
-7. **Effects** - Visual transition effects
-8. **Behavior** - Interaction and control options
-9. **Advanced** - Performance and fine-tuning
+### Effects
 
-## Usage
+- Slide
+- Fade
+- Cube
+- Coverflow
+- Flip
+- Cards
 
-1. Add the "Adaptive Carousel" block to your page
-2. **Default List View**: Start editing your slide content immediately
-   - Each slide appears as a separate block
-   - Add any WordPress blocks inside each slide
-   - Full editing capabilities available
-3. **Switch to Carousel View** when you want to:
-   - Test carousel settings and behavior
-   - Preview how it will look on the frontend
-   - Interact with navigation and controls
-4. **Configure settings** in the sidebar panels
-5. **Switch back to List View** for content editing
-6. Publish and enjoy your responsive carousel!
+### Viewport And Visual Behavior
 
-## Workflow Recommendations
+- Overflow-visible mode for slides that extend beyond the frame
+- Edge fade masks for softer offscreen crop behavior
+- Arrow, bullet, progress, and timer color controls
+- Contrast-mode toggles for arrows, bullets, and timers
 
-### **Content Creation Phase**
-- Use **List View** for all content editing
-- Add, remove, and edit slides freely
-- Focus on content without carousel interference
+## Block Structure
 
-### **Design & Testing Phase**  
-- Switch to **Carousel View** for configuration
-- Test different effects and settings
-- Verify navigation and responsive behavior
-- Fine-tune autoplay and interaction settings
+The block saves markup in this general form:
 
-## Technical Details
+```html
+<div class="swiper-slider-block" ...data attributes...>
+  <div class="swiper">
+    <div class="swiper-wrapper">
+      <!-- InnerBlocks content -->
+    </div>
+    <!-- optional pagination / arrows / scrollbar -->
+  </div>
+</div>
+```
 
-- **Framework**: WordPress Gutenberg Blocks API
-- **Carousel Engine**: Swiper.js v11 (loaded dynamically in editor)
-- **Build Process**: wp-scripts with SCSS compilation
-- **Responsive**: Mobile-first approach with breakpoints
-- **Performance**: Lazy loading and optimized rendering
-- **Editor Assets**: Automatic loading of Swiper CSS/JS when in preview mode
-- **Asset Management**: Smart loading system prevents conflicts and improves performance
+At render time, the PHP callback walks the `.swiper-wrapper` children and adds `swiper-slide` to each direct element node. That keeps authoring simple while ensuring Swiper receives valid slide markup.
 
-## Browser Support
+## Editor Experience
 
-- Modern browsers (Chrome, Firefox, Safari, Edge)
-- Mobile browsers (iOS Safari, Chrome Mobile)
-- Responsive design for all screen sizes
+- The block uses `InnerBlocks` so editors can place standard Gutenberg blocks inside slides
+- Settings live in inspector panels rather than a separate “preview mode” workflow
+- An editor helper script preloads Swiper CSS for editor-side styling and adds some observer-based enhancements
+
+## Source Layout
+
+- [`adaptive-carousel-enhancer.php`](/var/www/html/plugins/Ace-Adaptive-Carousel-Enhancer/adaptive-carousel-enhancer.php)
+  Plugin bootstrap and PHP render callback
+- [`block.json`](/var/www/html/plugins/Ace-Adaptive-Carousel-Enhancer/block.json)
+  Block registration metadata
+- [`src/adaptive-carousel-block.js`](/var/www/html/plugins/Ace-Adaptive-Carousel-Enhancer/src/adaptive-carousel-block.js)
+  Block registration, attributes, inspector controls, and save markup
+- [`src/frontend.js`](/var/www/html/plugins/Ace-Adaptive-Carousel-Enhancer/src/frontend.js)
+  Frontend Swiper setup and runtime behavior
+- [`src/editor.js`](/var/www/html/plugins/Ace-Adaptive-Carousel-Enhancer/src/editor.js)
+  Editor-side asset loading and helper behavior
+- [`src/style.scss`](/var/www/html/plugins/Ace-Adaptive-Carousel-Enhancer/src/style.scss)
+  Swiper and block styling
+- [`build/`](/var/www/html/plugins/Ace-Adaptive-Carousel-Enhancer/build)
+  Compiled production assets
 
 ## Installation
 
-1. Extract to WordPress plugins directory
-2. Run `npm install` to install dependencies
-3. Run `npm run build` to compile assets
-4. Activate the plugin in WordPress admin
+1. Put the plugin in your WordPress plugins directory.
+2. Run `npm install` inside the plugin directory if you need to build assets locally.
+3. Run `npm run build`.
+4. Activate the plugin in WordPress admin.
 
 ## Development
 
 ```bash
-# Install dependencies
 npm install
-
-# Development build (watch mode)
 npm run start
-
-# Production build
 npm run build
-
-# SCSS compilation only
-npm run build:scss
 ```
+
+Build pipeline notes:
+
+- `npm run build` runs `wp-scripts build`
+- SCSS is compiled separately into `build/ace-carousel-styles.css`
+- JS and CSS are then minified into the committed build assets
+
+## Current Notes
+
+- The standalone plugin repo is now the source of truth
+- `ppnews` should consume it via submodule rather than a vendored copy
+- The latest merge pulled in the ppnews animation reset improvement while preserving the newer upstream autoplay timer work
