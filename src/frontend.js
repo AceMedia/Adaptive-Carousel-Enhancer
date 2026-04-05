@@ -1076,12 +1076,12 @@ document.addEventListener('DOMContentLoaded', () => {
           el.style.removeProperty('transition');
 
           // Remove named animation classes while hidden-animated keeps
-          // the element invisible – no visible intermediate state.
+          // the element invisible. Commit one restart reflow, then add
+          // the classes back in a single batch to avoid layout thrash.
           animClasses.forEach(c => el.classList.remove(c));
-
-          // Commit the removal so the browser registers it as a new
-          // animation start when we add the classes back.
-          void el.offsetWidth;
+          if (animClasses.length) {
+            void el.offsetWidth;
+          }
 
           // Lift the hidden state and fire the animation in one batch.
           // The @keyframes `from` block now controls opacity from zero.
