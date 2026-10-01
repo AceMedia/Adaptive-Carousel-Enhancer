@@ -233,7 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
           newWrapper.classList.add('wp-block-post-template');
         }
 
-        ulChildren.forEach((child) => {
+        ulChildren.filter((child) => !child.classList.contains('ace-variation-tile')).forEach((child) => {
           newWrapper.appendChild(child);
         });
 
