@@ -1,4 +1,15 @@
-import Swiper from 'swiper/bundle';
+// Only the Swiper modules the block can switch on: swiper/bundle also carried Virtual, Zoom,
+// Thumbs, Controller, Grid, Parallax, Manipulation, HashNavigation, History and the creative
+// effect. A11y stays: it gives slides and buttons their roles and labels. The rarer modules live in
+// swiper-extras.js and load only on pages that use them (see the bottom of this file).
+import Swiper from 'swiper';
+import A11y from 'swiper-modules/a11y.mjs';
+import Autoplay from 'swiper-modules/autoplay.mjs';
+import Keyboard from 'swiper-modules/keyboard.mjs';
+import Navigation from 'swiper-modules/navigation.mjs';
+import Pagination from 'swiper-modules/pagination.mjs';
+
+Swiper.use([A11y, Autoplay, Keyboard, Navigation, Pagination]);
 
 // ---------------------------------------------------------------------------
 // Animation helpers
@@ -176,7 +187,7 @@ function bindProgressbarAutoplayTimer(swiper, container, blockWrapper) {
   });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+function initCarousels() {
   const swiperContainers = document.querySelectorAll('.swiper-slider-block .swiper');
   
   // Immediately hide all animated elements in all Swiper containers before processing them
@@ -1099,4 +1110,28 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   }
+}
+
+// Effects other than slide, free mode, mousewheel and the scrollbar come from a separate chunk,
+// fetched only when a carousel on the page asks for one. Everything else starts exactly as
+// before, at DOMContentLoaded.
+function needsExtras() {
+  return Array.from(document.querySelectorAll('.swiper-slider-block')).some((block) => {
+    const data = block.dataset;
+    return (data.effect && data.effect !== 'slide')
+      || data.freeMode === 'true'
+      || data.mousewheel === 'true'
+      || data.showScrollbar === 'true';
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  if (!needsExtras()) {
+    initCarousels();
+    return;
+  }
+  import(/* webpackChunkName: "swiper-extras" */ './swiper-extras')
+    .then(({ default: extras }) => Swiper.use(extras))
+    .catch(() => {}) // without them the carousel still runs, as a plain slide
+    .then(initCarousels);
 });
