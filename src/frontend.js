@@ -467,6 +467,32 @@ function initCarousels() {
       },
     };
 
+    // Arrows outside the slider: move the container and its buttons into an arrow holder before
+    // Swiper starts. Doing it afterwards meant destroying and re-creating every such carousel,
+    // which doubled its start-up cost (two rounds of forced style and layout per carousel).
+    const arrowsOutside = blockWrapper?.dataset.arrowsOutside === 'true';
+    if (arrowsOutside && showNavigation) {
+      const arrowHolder = document.createElement('div');
+      arrowHolder.className = 'arrowHolder';
+      container.parentNode.insertBefore(arrowHolder, container);
+
+      const nextButton = container.querySelector('.swiper-button-next');
+      const prevButton = container.querySelector('.swiper-button-prev');
+      arrowHolder.appendChild(container);
+      if (nextButton) {
+        arrowHolder.appendChild(nextButton);
+        config.navigation.nextEl = nextButton;
+      }
+      if (prevButton) {
+        arrowHolder.appendChild(prevButton);
+        config.navigation.prevEl = prevButton;
+      }
+    }
+    if (arrowsOutside) {
+      blockWrapper.setAttribute('data-arrows-outside', 'true');
+      container.classList.add('arrows-outside');
+    }
+
     // Initialize Swiper with configuration
     let swiper = new Swiper(container, config);
 
@@ -926,49 +952,7 @@ function initCarousels() {
       });
     }
 
-    // Check if arrows should be placed outside the slider
-    const arrowsOutside = blockWrapper?.dataset.arrowsOutside === 'true';
-    if (arrowsOutside && showNavigation) {
-      // Create arrow holder wrapper and restructure DOM
-      const arrowHolder = document.createElement('div');
-      arrowHolder.className = 'arrowHolder';
-      
-      // Insert arrow holder before the swiper container
-      container.parentNode.insertBefore(arrowHolder, container);
-      
-      // Find and move navigation buttons outside swiper but inside arrow holder
-      const nextButton = container.querySelector('.swiper-button-next');
-      const prevButton = container.querySelector('.swiper-button-prev');
-      
-      // Move swiper container into arrow holder
-      arrowHolder.appendChild(container);
-      
-      // Move navigation buttons outside swiper but inside arrow holder
-      if (nextButton) {
-        arrowHolder.appendChild(nextButton);
-        // Update navigation config to use the moved elements
-        config.navigation.nextEl = nextButton;
-      }
-      
-      if (prevButton) {
-        arrowHolder.appendChild(prevButton);
-        // Update navigation config to use the moved elements
-        config.navigation.prevEl = prevButton;
-      }
-      
-      // Re-initialize Swiper with new structure
-      swiper.destroy(true, false); // Don't remove elements, just destroy instance
-      swiper = new Swiper(container, config);
-      
-      // Apply enhanced styling classes
-      blockWrapper.setAttribute('data-arrows-outside', 'true');
-      container.classList.add('arrows-outside');
-    } else if (arrowsOutside) {
-      // Fallback for when arrows outside is requested but navigation is disabled
-      blockWrapper.setAttribute('data-arrows-outside', 'true');
-      container.classList.add('arrows-outside');
-    }
-
+    // Arrows outside: restructure before Swiper starts (see above the first new Swiper).
     bindAnimationLifecycle(swiper, container);
   });
 
