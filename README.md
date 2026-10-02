@@ -91,7 +91,7 @@ At render time, the PHP callback walks the `.swiper-wrapper` children and adds `
 - [`src/adaptive-carousel-block.js`](/var/www/html/plugins/Ace-Adaptive-Carousel-Enhancer/src/adaptive-carousel-block.js)
   Block registration, attributes, inspector controls, and save markup
 - [`src/frontend.js`](/var/www/html/plugins/Ace-Adaptive-Carousel-Enhancer/src/frontend.js)
-  Frontend Swiper setup and runtime behavior
+  Frontend Swiper setup and runtime behavior. Registered as the block's `viewScript`, so WordPress loads it deferred (never render-blocking) and only on pages that render a carousel; it initialises on `DOMContentLoaded`
 - [`src/editor.js`](/var/www/html/plugins/Ace-Adaptive-Carousel-Enhancer/src/editor.js)
   Editor-side asset loading and helper behavior
 - [`src/style.scss`](/var/www/html/plugins/Ace-Adaptive-Carousel-Enhancer/src/style.scss)

@@ -6,7 +6,7 @@
   "category": "layout",
   "icon": "images-alt2",
   "editorScript": "file:./build/index.js",
-  "script": "file:./build/frontend.js",
+  "viewScript": "file:./build/frontend.js",
   "editorStyle": "file:./build/ace-carousel-styles.css",
   "style": "file:./build/ace-carousel-styles.css"
 }
