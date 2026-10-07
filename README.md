@@ -84,21 +84,21 @@ At render time, the PHP callback walks the `.swiper-wrapper` children and adds `
 
 ## Source Layout
 
-- [`adaptive-carousel-enhancer.php`](/var/www/html/plugins/Ace-Adaptive-Carousel-Enhancer/adaptive-carousel-enhancer.php)
+- [`adaptive-carousel-enhancer.php`](adaptive-carousel-enhancer.php)
   Plugin bootstrap and PHP render callback
-- [`block.json`](/var/www/html/plugins/Ace-Adaptive-Carousel-Enhancer/block.json)
+- [`block.json`](block.json)
   Block registration metadata
-- [`src/adaptive-carousel-block.js`](/var/www/html/plugins/Ace-Adaptive-Carousel-Enhancer/src/adaptive-carousel-block.js)
+- [`src/adaptive-carousel-block.js`](src/adaptive-carousel-block.js)
   Block registration, attributes, inspector controls, and save markup
-- [`src/frontend.js`](/var/www/html/plugins/Ace-Adaptive-Carousel-Enhancer/src/frontend.js)
+- [`src/frontend.js`](src/frontend.js)
   Frontend Swiper setup and runtime behavior. Registered as the block's `viewScript`, so WordPress loads it deferred (never render-blocking) and only on pages that render a carousel; it initialises on `DOMContentLoaded`. It imports Swiper core with only A11y, Autoplay, Keyboard, Navigation and Pagination (via the `swiper-modules` alias in `webpack.config.js`, since Swiper only exports its modules barrel)
-- [`src/swiper-extras.js`](/var/www/html/plugins/Ace-Adaptive-Carousel-Enhancer/src/swiper-extras.js)
+- [`src/swiper-extras.js`](src/swiper-extras.js)
   The rarer Swiper modules (fade, cube, coverflow, flip and cards effects, free mode, mousewheel, scrollbar), built as the lazy `build/swiper-extras.js` chunk and fetched only when a carousel on the page uses one. If it fails to load, carousels still start as plain slides
-- [`src/editor.js`](/var/www/html/plugins/Ace-Adaptive-Carousel-Enhancer/src/editor.js)
+- [`src/editor.js`](src/editor.js)
   Editor-side asset loading and helper behavior
-- [`src/style.scss`](/var/www/html/plugins/Ace-Adaptive-Carousel-Enhancer/src/style.scss)
+- [`src/style.scss`](src/style.scss)
   Swiper and block styling
-- [`build/`](/var/www/html/plugins/Ace-Adaptive-Carousel-Enhancer/build)
+- [`build/`](build)
   Compiled production assets
 
 ## Installation
@@ -124,6 +124,4 @@ Build pipeline notes:
 
 ## Current Notes
 
-- The standalone plugin repo is now the source of truth
-- `ppnews` should consume it via submodule rather than a vendored copy
-- The latest merge pulled in the ppnews animation reset improvement while preserving the newer upstream autoplay timer work
+- This repository is the source of truth; consuming sites should pull it in as a git submodule rather than keeping a vendored copy

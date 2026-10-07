@@ -4,6 +4,8 @@
  * Description: Gutenberg block that turns inner blocks into SwiperJS slides.
  * Author: Shane Rounce
  * Version: 0.1.0
+ * License: GPL-2.0-or-later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  */
 
 defined('ABSPATH') || exit;

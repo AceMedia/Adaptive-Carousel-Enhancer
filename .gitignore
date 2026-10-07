@@ -1,1 +1,5 @@
 node_modules/
+
+# Private agent notes (never commit)
+CLAUDE.local.md
+.codex/
