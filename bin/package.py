@@ -1,9 +1,12 @@
 from pathlib import Path
-import hashlib, zipfile
+import hashlib, zipfile, os
 root = Path(__file__).resolve().parents[1]
 out = root / "dist" / "adaptive-carousel-enhancer-0.1.1.zip"
 out.parent.mkdir(exist_ok=True)
-files = [p for p in root.rglob("*") if p.is_file() and not any(x in p.relative_to(root).parts for x in (".git", "node_modules", "dist", "tests", "bin")) and not p.name.startswith(".") and not p.name.endswith(".map")]
+files = []
+for directory, subdirs, names in os.walk(root):
+    subdirs[:] = [name for name in subdirs if name not in ('.git', 'node_modules', 'dist', 'tests', 'bin')]
+    files.extend(Path(directory) / name for name in names if not name.startswith('.') and not name.endswith('.map'))
 with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as archive:
     for p in sorted(files):
         info = zipfile.ZipInfo("adaptive-carousel-enhancer/" + p.relative_to(root).as_posix(), (2026,10,30,0,0,0))
