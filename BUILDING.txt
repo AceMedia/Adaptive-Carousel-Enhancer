@@ -1,0 +1,11 @@
+# Building Adaptive Carousel Enhancer
+
+The editable JavaScript and Sass are in `src/`. The distributed `build/` files are generated from this source.
+
+Run `npm ci` followed by `npm run build` with Node.js 20 or later. Commit the generated files and their asset manifests together. The lockfile pins the dependency versions.
+
+Swiper is bundled locally under the MIT licence in LICENSE-SWIPER. Its upstream source is https://github.com/nolimits4web/swiper. The installed version is recorded in package-lock.json. No CDN or external service is needed to render a carousel.
+
+The editor uses the classic WordPress element runtime so it does not require the newer react-jsx-runtime script on WordPress 6.0. The existing ace/adaptive-carousel block name and saved markup are retained.
+
+Create a release with `python3 bin/package.py`; the archive includes source and build instructions for review.

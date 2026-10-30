@@ -12,8 +12,8 @@ import {
 import { useState } from '@wordpress/element';
 
 registerBlockType('ace/adaptive-carousel', {
-  apiVersion: 2,
-  title: __('Adaptive Carousel', 'adaptive-carousel'),
+  apiVersion: 3,
+  title: __('Adaptive Carousel', 'adaptive-carousel-enhancer'),
   icon: 'images-alt2',
   category: 'layout',
   attributes: {
@@ -163,32 +163,32 @@ registerBlockType('ace/adaptive-carousel', {
       <div {...blockProps}>
         <InspectorControls>
           {/* Basic Settings Panel */}
-          <PanelBody title={__('Basic Settings', 'adaptive-carousel')}>
+          <PanelBody title={__('Basic Settings', 'adaptive-carousel-enhancer')}>
             <RangeControl
-              label={__('Slides Per View', 'adaptive-carousel')}
+              label={__('Slides Per View', 'adaptive-carousel-enhancer')}
               min={1}
               max={10}
               value={slidesPerView}
               onChange={(value) => setAttributes({ slidesPerView: value })}
             />
             <RangeControl
-              label={__('Space Between Slides', 'adaptive-carousel')}
+              label={__('Space Between Slides', 'adaptive-carousel-enhancer')}
               min={0}
               max={50}
               value={spaceBetween}
               onChange={(value) => setAttributes({ spaceBetween: value })}
             />
             <SelectControl
-              label={__('Direction', 'adaptive-carousel')}
+              label={__('Direction', 'adaptive-carousel-enhancer')}
               value={direction}
               options={[
-                { label: __('Horizontal', 'adaptive-carousel'), value: 'horizontal' },
-                { label: __('Vertical', 'adaptive-carousel'), value: 'vertical' },
+                { label: __('Horizontal', 'adaptive-carousel-enhancer'), value: 'horizontal' },
+                { label: __('Vertical', 'adaptive-carousel-enhancer'), value: 'vertical' },
               ]}
               onChange={(value) => setAttributes({ direction: value })}
             />
             <RangeControl
-              label={__('Transition Speed (ms)', 'adaptive-carousel')}
+              label={__('Transition Speed (ms)', 'adaptive-carousel-enhancer')}
               min={100}
               max={2000}
               step={50}
@@ -196,30 +196,30 @@ registerBlockType('ace/adaptive-carousel', {
               onChange={(value) => setAttributes({ speed: value })}
             />
             <ToggleControl
-              label={__('Loop Slides', 'adaptive-carousel')}
+              label={__('Loop Slides', 'adaptive-carousel-enhancer')}
               checked={loop}
               onChange={(value) => setAttributes({ loop: value })}
             />
           </PanelBody>
 
           {/* Navigation Panel */}
-          <PanelBody title={__('Navigation', 'adaptive-carousel')} initialOpen={false}>
+          <PanelBody title={__('Navigation', 'adaptive-carousel-enhancer')} initialOpen={false}>
             <ToggleControl
-              label={__('Show Navigation Arrows', 'adaptive-carousel')}
+              label={__('Show Navigation Arrows', 'adaptive-carousel-enhancer')}
               checked={showNavigation}
               onChange={(value) => setAttributes({ showNavigation: value })}
             />
             {showNavigation && (
               <div>
                 <ToggleControl
-                  label={__('Arrow Contrast Mode', 'adaptive-carousel')}
+                  label={__('Arrow Contrast Mode', 'adaptive-carousel-enhancer')}
                   checked={arrowContrastMode}
                   onChange={(value) => setAttributes({ arrowContrastMode: value })}
-                  help={__('Applies contrast filter to arrows when inside slides', 'adaptive-carousel')}
+                  help={__('Applies contrast filter to arrows when inside slides', 'adaptive-carousel-enhancer')}
                 />
                 {!arrowContrastMode && (
                   <div>
-                    <strong>{__('Arrow Color', 'adaptive-carousel')}</strong>
+                    <strong>{__('Arrow Color', 'adaptive-carousel-enhancer')}</strong>
                     <ColorPalette
                       value={arrowColor}
                       onChange={(color) => setAttributes({ arrowColor: color })}
@@ -227,56 +227,56 @@ registerBlockType('ace/adaptive-carousel', {
                   </div>
                 )}
                 <ToggleControl
-                  label={__('Arrows Outside', 'adaptive-carousel')}
+                  label={__('Arrows Outside', 'adaptive-carousel-enhancer')}
                   checked={arrowsOutside}
                   onChange={(value) => setAttributes({ arrowsOutside: value })}
-                  help={__('Place navigation arrows outside the slider', 'adaptive-carousel')}
+                  help={__('Place navigation arrows outside the slider', 'adaptive-carousel-enhancer')}
                 />
               </div>
             )}
           </PanelBody>
 
           {/* Pagination Panel */}
-          <PanelBody title={__('Pagination', 'adaptive-carousel')} initialOpen={false}>
+          <PanelBody title={__('Pagination', 'adaptive-carousel-enhancer')} initialOpen={false}>
             <ToggleControl
-              label={__('Show Pagination', 'adaptive-carousel')}
+              label={__('Show Pagination', 'adaptive-carousel-enhancer')}
               checked={showPagination}
               onChange={(value) => setAttributes({ showPagination: value })}
             />
             {showPagination && (
               <>
                 <SelectControl
-                  label={__('Pagination Type', 'adaptive-carousel')}
+                  label={__('Pagination Type', 'adaptive-carousel-enhancer')}
                   value={paginationType}
                   options={[
-                    { label: __('Bullets', 'adaptive-carousel'), value: 'bullets' },
-                    { label: __('Fraction', 'adaptive-carousel'), value: 'fraction' },
-                    { label: __('Progress Bar', 'adaptive-carousel'), value: 'progressbar' },
+                    { label: __('Bullets', 'adaptive-carousel-enhancer'), value: 'bullets' },
+                    { label: __('Fraction', 'adaptive-carousel-enhancer'), value: 'fraction' },
+                    { label: __('Progress Bar', 'adaptive-carousel-enhancer'), value: 'progressbar' },
                   ]}
                   onChange={(value) => setAttributes({ paginationType: value })}
                 />
                 <ToggleControl
-                  label={__('Clickable Pagination', 'adaptive-carousel')}
+                  label={__('Clickable Pagination', 'adaptive-carousel-enhancer')}
                   checked={paginationClickable}
                   onChange={(value) => setAttributes({ paginationClickable: value })}
                 />
                 <ToggleControl
-                  label={__('Add Spacing to Pagination', 'adaptive-carousel')}
+                  label={__('Add Spacing to Pagination', 'adaptive-carousel-enhancer')}
                   checked={paginationSpacing}
                   onChange={(value) => setAttributes({ paginationSpacing: value })}
-                  help={__('Adds extra space for bullets, fractions, or progress bars for better visual separation', 'adaptive-carousel')}
+                  help={__('Adds extra space for bullets, fractions, or progress bars for better visual separation', 'adaptive-carousel-enhancer')}
                 />
                 {paginationType === 'bullets' && (
                   <div>
                     <ToggleControl
-                      label={__('Bullet Contrast Mode', 'adaptive-carousel')}
+                      label={__('Bullet Contrast Mode', 'adaptive-carousel-enhancer')}
                       checked={bulletContrastMode}
                       onChange={(value) => setAttributes({ bulletContrastMode: value })}
-                      help={__('Applies contrast filter to bullets when inside slides', 'adaptive-carousel')}
+                      help={__('Applies contrast filter to bullets when inside slides', 'adaptive-carousel-enhancer')}
                     />
                     {!bulletContrastMode && (
                       <div>
-                        <strong>{__('Bullet Color', 'adaptive-carousel')}</strong>
+                        <strong>{__('Bullet Color', 'adaptive-carousel-enhancer')}</strong>
                         <ColorPalette
                           value={bulletColor}
                           onChange={(color) => setAttributes({ bulletColor: color })}
@@ -288,16 +288,16 @@ registerBlockType('ace/adaptive-carousel', {
                 {paginationType === 'progressbar' && (
                   <>
                     <SelectControl
-                      label={__('Progress Bar Position', 'adaptive-carousel')}
+                      label={__('Progress Bar Position', 'adaptive-carousel-enhancer')}
                       value={progressBarPosition}
                       options={[
-                        { label: __('Above Slider', 'adaptive-carousel'), value: 'top' },
-                        { label: __('Below Slider', 'adaptive-carousel'), value: 'bottom' },
+                        { label: __('Above Slider', 'adaptive-carousel-enhancer'), value: 'top' },
+                        { label: __('Below Slider', 'adaptive-carousel-enhancer'), value: 'bottom' },
                       ]}
                       onChange={(value) => setAttributes({ progressBarPosition: value })}
                     />
                     <div>
-                      <strong>{__('Progress Bar Color', 'adaptive-carousel')}</strong>
+                      <strong>{__('Progress Bar Color', 'adaptive-carousel-enhancer')}</strong>
                       <ColorPalette
                         value={bulletColor}
                         onChange={(color) => setAttributes({ bulletColor: color })}
@@ -310,15 +310,15 @@ registerBlockType('ace/adaptive-carousel', {
           </PanelBody>
 
           {/* Scrollbar Panel */}
-          <PanelBody title={__('Scrollbar', 'adaptive-carousel')} initialOpen={false}>
+          <PanelBody title={__('Scrollbar', 'adaptive-carousel-enhancer')} initialOpen={false}>
             <ToggleControl
-              label={__('Show Scrollbar', 'adaptive-carousel')}
+              label={__('Show Scrollbar', 'adaptive-carousel-enhancer')}
               checked={showScrollbar}
               onChange={(value) => setAttributes({ showScrollbar: value })}
             />
             {showScrollbar && (
               <ToggleControl
-                label={__('Draggable Scrollbar', 'adaptive-carousel')}
+                label={__('Draggable Scrollbar', 'adaptive-carousel-enhancer')}
                 checked={scrollbarDraggable}
                 onChange={(value) => setAttributes({ scrollbarDraggable: value })}
               />
@@ -326,16 +326,16 @@ registerBlockType('ace/adaptive-carousel', {
           </PanelBody>
 
           {/* Autoplay Panel */}
-          <PanelBody title={__('Autoplay', 'adaptive-carousel')} initialOpen={false}>
+          <PanelBody title={__('Autoplay', 'adaptive-carousel-enhancer')} initialOpen={false}>
             <ToggleControl
-              label={__('Enable Autoplay', 'adaptive-carousel')}
+              label={__('Enable Autoplay', 'adaptive-carousel-enhancer')}
               checked={autoplay}
               onChange={(value) => setAttributes({ autoplay: value })}
             />
             {autoplay && (
               <>
                 <RangeControl
-                  label={__('Autoplay Delay (ms)', 'adaptive-carousel')}
+                  label={__('Autoplay Delay (ms)', 'adaptive-carousel-enhancer')}
                   min={1000}
                   max={10000}
                   step={500}
@@ -343,24 +343,24 @@ registerBlockType('ace/adaptive-carousel', {
                   onChange={(value) => setAttributes({ autoplayDelay: value })}
                 />
                 <ToggleControl
-                  label={__('Pause on Mouse Enter', 'adaptive-carousel')}
+                  label={__('Pause on Mouse Enter', 'adaptive-carousel-enhancer')}
                   checked={autoplayPauseOnMouseEnter}
                   onChange={(value) => setAttributes({ autoplayPauseOnMouseEnter: value })}
                 />
                 <ToggleControl
-                  label={__('Disable on Interaction', 'adaptive-carousel')}
+                  label={__('Disable on Interaction', 'adaptive-carousel-enhancer')}
                   checked={autoplayDisableOnInteraction}
                   onChange={(value) => setAttributes({ autoplayDisableOnInteraction: value })}
                 />
                 <ToggleControl
-                  label={__('Timer Contrast Mode', 'adaptive-carousel')}
+                  label={__('Timer Contrast Mode', 'adaptive-carousel-enhancer')}
                   checked={timerContrastMode}
                   onChange={(value) => setAttributes({ timerContrastMode: value })}
-                  help={__('Applies contrast filter to the autoplay timer', 'adaptive-carousel')}
+                  help={__('Applies contrast filter to the autoplay timer', 'adaptive-carousel-enhancer')}
                 />
                 {!timerContrastMode && (
                   <div>
-                    <strong>{__('Timer Color', 'adaptive-carousel')}</strong>
+                    <strong>{__('Timer Color', 'adaptive-carousel-enhancer')}</strong>
                     <ColorPalette
                       value={timerColor}
                       onChange={(color) => setAttributes({ timerColor: color })}
@@ -370,40 +370,40 @@ registerBlockType('ace/adaptive-carousel', {
 
                 {showPagination && paginationType === 'progressbar' && (
                   <ToggleControl
-                    label={__('Use Progress Bar as Timer', 'adaptive-carousel')}
+                    label={__('Use Progress Bar as Timer', 'adaptive-carousel-enhancer')}
                     checked={progressbarAutoplayTimer}
                     onChange={(value) => setAttributes({ progressbarAutoplayTimer: value })}
-                    help={__('Fills the progress bar linearly from empty to full for each autoplay interval', 'adaptive-carousel')}
+                    help={__('Fills the progress bar linearly from empty to full for each autoplay interval', 'adaptive-carousel-enhancer')}
                   />
                 )}
               </>
             )}
           </PanelBody>
 
-          <PanelBody title={__('Viewport & Fade', 'adaptive-carousel')} initialOpen={false}>
+          <PanelBody title={__('Viewport & Fade', 'adaptive-carousel-enhancer')} initialOpen={false}>
             <ToggleControl
-              label={__('Allow Overflow Outside Slider', 'adaptive-carousel')}
+              label={__('Allow Overflow Outside Slider', 'adaptive-carousel-enhancer')}
               checked={overflowVisible}
               onChange={(value) => setAttributes({
                 overflowVisible: value,
                 edgeFade: value ? edgeFade : false,
               })}
-              help={__('Lets neighboring slides render outside the slider viewport', 'adaptive-carousel')}
+              help={__('Lets neighboring slides render outside the slider viewport', 'adaptive-carousel-enhancer')}
             />
 
             <ToggleControl
-              label={__('Fade Edges Outside View', 'adaptive-carousel')}
+              label={__('Fade Edges Outside View', 'adaptive-carousel-enhancer')}
               checked={edgeFade}
               onChange={(value) => setAttributes({
                 edgeFade: value,
                 overflowVisible: value ? true : overflowVisible,
               })}
-              help={__('Adds left/right fade masks so offscreen slide content fades out instead of clipping hard', 'adaptive-carousel')}
+              help={__('Adds left/right fade masks so offscreen slide content fades out instead of clipping hard', 'adaptive-carousel-enhancer')}
             />
 
             {edgeFade && (
               <RangeControl
-                label={__('Edge Fade Size (px)', 'adaptive-carousel')}
+                label={__('Edge Fade Size (px)', 'adaptive-carousel-enhancer')}
                 min={16}
                 max={220}
                 step={2}
@@ -414,23 +414,23 @@ registerBlockType('ace/adaptive-carousel', {
           </PanelBody>
 
           {/* Effects Panel */}
-          <PanelBody title={__('Effects', 'adaptive-carousel')} initialOpen={false}>
+          <PanelBody title={__('Effects', 'adaptive-carousel-enhancer')} initialOpen={false}>
             <SelectControl
-              label={__('Transition Effect', 'adaptive-carousel')}
+              label={__('Transition Effect', 'adaptive-carousel-enhancer')}
               value={effect}
               options={[
-                { label: __('Slide', 'adaptive-carousel'), value: 'slide' },
-                { label: __('Fade', 'adaptive-carousel'), value: 'fade' },
-                { label: __('Cube', 'adaptive-carousel'), value: 'cube' },
-                { label: __('Coverflow', 'adaptive-carousel'), value: 'coverflow' },
-                { label: __('Flip', 'adaptive-carousel'), value: 'flip' },
-                { label: __('Cards', 'adaptive-carousel'), value: 'cards' },
+                { label: __('Slide', 'adaptive-carousel-enhancer'), value: 'slide' },
+                { label: __('Fade', 'adaptive-carousel-enhancer'), value: 'fade' },
+                { label: __('Cube', 'adaptive-carousel-enhancer'), value: 'cube' },
+                { label: __('Coverflow', 'adaptive-carousel-enhancer'), value: 'coverflow' },
+                { label: __('Flip', 'adaptive-carousel-enhancer'), value: 'flip' },
+                { label: __('Cards', 'adaptive-carousel-enhancer'), value: 'cards' },
               ]}
               onChange={(value) => setAttributes({ effect: value })}
             />
             {effect === 'fade' && (
               <ToggleControl
-                label={__('Cross Fade', 'adaptive-carousel')}
+                label={__('Cross Fade', 'adaptive-carousel-enhancer')}
                 checked={fadeEffect}
                 onChange={(value) => setAttributes({ fadeEffect: value })}
               />
@@ -438,60 +438,60 @@ registerBlockType('ace/adaptive-carousel', {
           </PanelBody>
 
           {/* Behavior Panel */}
-          <PanelBody title={__('Behavior', 'adaptive-carousel')} initialOpen={false}>
+          <PanelBody title={__('Behavior', 'adaptive-carousel-enhancer')} initialOpen={false}>
             <ToggleControl
-              label={__('Grab Cursor', 'adaptive-carousel')}
+              label={__('Grab Cursor', 'adaptive-carousel-enhancer')}
               checked={grabCursor}
               onChange={(value) => setAttributes({ grabCursor: value })}
             />
             <ToggleControl
-              label={__('Centered Slides', 'adaptive-carousel')}
+              label={__('Centered Slides', 'adaptive-carousel-enhancer')}
               checked={centeredSlides}
               onChange={(value) => setAttributes({ centeredSlides: value })}
             />
             <ToggleControl
-              label={__('Free Mode', 'adaptive-carousel')}
+              label={__('Free Mode', 'adaptive-carousel-enhancer')}
               checked={freeMode}
               onChange={(value) => setAttributes({ freeMode: value })}
             />
             <ToggleControl
-              label={__('Keyboard Control', 'adaptive-carousel')}
+              label={__('Keyboard Control', 'adaptive-carousel-enhancer')}
               checked={keyboard}
               onChange={(value) => setAttributes({ keyboard: value })}
             />
             <ToggleControl
-              label={__('Mousewheel Control', 'adaptive-carousel')}
+              label={__('Mousewheel Control', 'adaptive-carousel-enhancer')}
               checked={mousewheel}
               onChange={(value) => setAttributes({ mousewheel: value })}
             />
             <ToggleControl
-              label={__('Allow Touch Move', 'adaptive-carousel')}
+              label={__('Allow Touch Move', 'adaptive-carousel-enhancer')}
               checked={allowTouchMove}
               onChange={(value) => setAttributes({ allowTouchMove: value })}
             />
           </PanelBody>
 
           {/* Advanced Panel */}
-          <PanelBody title={__('Advanced', 'adaptive-carousel')} initialOpen={false}>
+          <PanelBody title={__('Advanced', 'adaptive-carousel-enhancer')} initialOpen={false}>
             <RangeControl
-              label={__('Slides Per Group', 'adaptive-carousel')}
+              label={__('Slides Per Group', 'adaptive-carousel-enhancer')}
               min={1}
               max={10}
               value={slidesPerGroup}
               onChange={(value) => setAttributes({ slidesPerGroup: value })}
-              help={__('Number of slides to move at once', 'adaptive-carousel')}
+              help={__('Number of slides to move at once', 'adaptive-carousel-enhancer')}
             />
             <ToggleControl
-              label={__('Watch Overflow', 'adaptive-carousel')}
+              label={__('Watch Overflow', 'adaptive-carousel-enhancer')}
               checked={watchOverflow}
               onChange={(value) => setAttributes({ watchOverflow: value })}
-              help={__('Hide navigation when not needed', 'adaptive-carousel')}
+              help={__('Hide navigation when not needed', 'adaptive-carousel-enhancer')}
             />
             <ToggleControl
-              label={__('Rewind', 'adaptive-carousel')}
+              label={__('Rewind', 'adaptive-carousel-enhancer')}
               checked={rewind}
               onChange={(value) => setAttributes({ rewind: value })}
-              help={__('Go to first slide when reaching the end', 'adaptive-carousel')}
+              help={__('Go to first slide when reaching the end', 'adaptive-carousel-enhancer')}
             />
           </PanelBody>
 

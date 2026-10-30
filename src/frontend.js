@@ -187,6 +187,11 @@ function bindProgressbarAutoplayTimer(swiper, container, blockWrapper) {
   });
 }
 
+// Accept colour values only, never markup, declarations or CSS URLs.
+function safeColour(value, fallback) {
+  return typeof value === 'string' && /^#[0-9a-f]{3,8}$/i.test(value) && [4, 5, 7, 9].includes(value.length) ? value : fallback;
+}
+
 function initCarousels() {
   const swiperContainers = document.querySelectorAll('.swiper-slider-block .swiper');
   
@@ -215,9 +220,10 @@ function initCarousels() {
     });
     
     // Fetch color settings and contrast mode from dataset
-    const arrowColor = blockWrapper?.dataset.arrowColor || '#000000';
-    const bulletColor = blockWrapper?.dataset.bulletColor || '#000000';
-    const timerColor = blockWrapper?.dataset.timerColor || '#FFFFFF';
+    const arrowColor = safeColour(blockWrapper?.dataset.arrowColor, '#000000');
+    const bulletColor = safeColour(blockWrapper?.dataset.bulletColor, '#000000');
+    const timerColor = safeColour(blockWrapper?.dataset.timerColor, '#FFFFFF');
+    blockWrapper.style.setProperty('--bullet-color', bulletColor);
     const arrowContrastMode = blockWrapper?.dataset.arrowContrastMode === 'true';
     const bulletContrastMode = blockWrapper?.dataset.bulletContrastMode === 'true';
     const timerContrastMode = blockWrapper?.dataset.timerContrastMode !== 'false';
@@ -335,16 +341,7 @@ function initCarousels() {
           // Also set it via CSS custom property for dynamic updates
           paginationEl.style.setProperty('--swiper-pagination-color', bulletColor);
           
-          // Apply the color immediately to the pagination element
-          const style = document.createElement('style');
-          style.textContent = `
-            .swiper-slider-block .swiper-pagination-progressbar .swiper-pagination-progressbar-fill,
-            .swiper-slider-block .swiper-pagination-top .swiper-pagination-progressbar-fill,
-            .swiper-slider-block .swiper-pagination-bottom .swiper-pagination-progressbar-fill {
-              background-color: ${bulletColor} !important;
-            }
-          `;
-          document.head.appendChild(style);
+
         }
       }
     }
