@@ -574,7 +574,7 @@ function initCarousels() {
             if (progressContent) {
               // Show remaining time, ensuring it reaches 0
               const remainingTime = Math.max(0, Math.ceil(time / 1000));
-              progressContent.textContent = `${remainingTime}s`;
+              if (progressContent.textContent !== `${remainingTime}s`) progressContent.textContent = `${remainingTime}s`;
             }
           });
           
@@ -693,7 +693,7 @@ function initCarousels() {
                 if (progressContent) {
                   // Show remaining time, ensuring it reaches 0
                   const remainingTime = Math.max(0, Math.ceil(time / 1000));
-                  progressContent.textContent = `${remainingTime}s`;
+                  if (progressContent.textContent !== `${remainingTime}s`) progressContent.textContent = `${remainingTime}s`;
                 }
               });
               
