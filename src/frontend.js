@@ -207,7 +207,7 @@ function initCarousels() {
     });
   });
   
-  document.querySelectorAll('.swiper-slider-block .swiper').forEach((container, index) => {
+  const setupCarousel = (container) => {
     const blockWrapper = container.closest('.swiper-slider-block');
 
     // Immediately hide all animated elements before any Swiper initialization to prevent flicker
@@ -951,7 +951,15 @@ function initCarousels() {
 
     // Arrows outside: restructure before Swiper starts (see above the first new Swiper).
     bindAnimationLifecycle(swiper, container);
-  });
+  };
+
+  // One carousel per task, so a page with several gives the browser room to respond between them.
+  const pending = Array.from(swiperContainers);
+  const startNext = () => {
+    setupCarousel(pending.shift());
+    if (pending.length) setTimeout(startNext, 0);
+  };
+  if (pending.length) startNext();
 
   function clearPendingAnimationReset(container) {
     if (container._aceResetTimer) {
