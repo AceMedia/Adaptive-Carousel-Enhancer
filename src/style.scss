@@ -2120,3 +2120,12 @@ $spacing-mobile: 10px;
 .swiper-slider-block[data-edge-fade="true"] .swiper:not(.swiper-initialized) {
   overflow: visible;
 }
+// Before a carousel further down the page starts, show only its first slide, so the page isn't
+// a screen or more longer until then.
+.ace-carousel-waiting {
+  .swiper-wrapper > .swiper-slide:not(:first-child),
+  .wp-block-post-template > li:not(:first-child),
+  .wc-block-product-template > li:not(:first-child) {
+    display: none;
+  }
+}

@@ -208,6 +208,7 @@ function initCarousels() {
   });
   
   const setupCarousel = (container) => {
+    container.classList.remove('ace-carousel-waiting');
     const blockWrapper = container.closest('.swiper-slider-block');
 
     // Immediately hide all animated elements before any Swiper initialization to prevent flicker
@@ -954,12 +955,39 @@ function initCarousels() {
   };
 
   // One carousel per task, so a page with several gives the browser room to respond between them.
-  const pending = Array.from(swiperContainers);
-  const startNext = () => {
-    setupCarousel(pending.shift());
-    if (pending.length) setTimeout(startNext, 0);
+  const queue = [];
+  const runQueue = () => {
+    setupCarousel(queue.shift());
+    if (queue.length) setTimeout(runQueue, 0);
   };
-  if (pending.length) startNext();
+  const startCarousel = (container) => {
+    queue.push(container);
+    if (queue.length === 1) runQueue();
+  };
+
+  // Carousels on screen start now. The rest wait until they're a screen away, which also covers
+  // ones in hidden tabs, as those only intersect once they're shown.
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        observer.unobserve(entry.target);
+        startCarousel(entry.target);
+      });
+    }, { rootMargin: '100% 0px' });
+
+    swiperContainers.forEach((container) => {
+      const rect = container.getBoundingClientRect();
+      if (rect.height > 0 && rect.top < window.innerHeight && rect.bottom > 0) {
+        startCarousel(container);
+      } else {
+        container.classList.add('ace-carousel-waiting');
+        observer.observe(container);
+      }
+    });
+  } else {
+    swiperContainers.forEach(startCarousel);
+  }
 
   function clearPendingAnimationReset(container) {
     if (container._aceResetTimer) {
