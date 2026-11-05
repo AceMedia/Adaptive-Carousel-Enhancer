@@ -978,7 +978,9 @@ function initCarousels() {
 
     swiperContainers.forEach((container) => {
       const rect = container.getBoundingClientRect();
-      if (rect.height > 0 && rect.top < window.innerHeight && rect.bottom > 0) {
+      // checkVisibility: a closed panel using content-visibility still reports a size here.
+      const visible = !container.checkVisibility || container.checkVisibility();
+      if (visible && rect.height > 0 && rect.top < window.innerHeight && rect.bottom > 0) {
         startCarousel(container);
       } else {
         container.classList.add('ace-carousel-waiting');
