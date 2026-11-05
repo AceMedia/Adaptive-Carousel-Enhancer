@@ -267,6 +267,13 @@ function initCarousels() {
       });
     }
 
+    // Optional phone settings, as data attributes: a slide limit and a peek at the slides either side.
+    const onPhone = window.matchMedia('(max-width: 781px)').matches;
+    const mobileMaxSlides = parseInt(blockWrapper?.dataset.mobileMaxSlides || '0', 10);
+    if (onPhone && mobileMaxSlides > 0 && updatedWrapper) {
+      Array.from(updatedWrapper.children).slice(mobileMaxSlides).forEach((child) => child.remove());
+    }
+
     // Get all configuration from data attributes
     const config = {
       // Basic settings
@@ -464,6 +471,17 @@ function initCarousels() {
         spaceBetween: config.spaceBetween,
       },
     };
+
+    if (blockWrapper?.dataset.mobilePeek === 'true' && config.slidesPerView === 1 && effect === 'slide') {
+      config.breakpoints = {
+        0: { slidesPerView: 1.14, spaceBetween: 8, centeredSlides: true },
+        782: { slidesPerView: 1, spaceBetween: config.spaceBetween, centeredSlides: config.centeredSlides },
+      };
+    }
+
+    if (config.autoplay && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      config.autoplay = false;
+    }
 
     // Arrows outside the slider: move the container and its buttons into an arrow holder before
     // Swiper starts. Doing it afterwards meant destroying and re-creating every such carousel,
