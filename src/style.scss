@@ -2135,3 +2135,40 @@ $spacing-mobile: 10px;
 .wp-block-ace-adaptive-carousel[data-slides="1"]:not(:has(.swiper-initialized)) .wp-block-post-template > *:not(:first-child) {
 	display: none !important;
 }
+
+// Phone peek: the carousel runs to the screen edges with the slides either side showing, and the
+// controls stay fixed over the current slide. The inset matches slidesPerView 1.14 in frontend.js.
+@media (max-width: 781px) {
+	.swiper-slider-block[data-mobile-peek="true"] {
+		--ace-peek-inset: calc(6.14% + .5px);
+		position: relative;
+		left: 50%;
+		width: 100vw;
+		max-width: 100vw;
+		margin-left: -50vw !important;
+		margin-right: 0 !important;
+
+		&:not(:has(.swiper-initialized)) .wp-block-post-template > *:first-child {
+			width: 87.7%;
+			margin-inline: auto;
+		}
+
+		.swiper-button-prev {
+			left: var(--ace-peek-inset) !important;
+		}
+
+		.swiper-button-next {
+			right: var(--ace-peek-inset) !important;
+		}
+
+		.swiper-pagination {
+			left: calc(var(--ace-peek-inset) + 50px) !important;
+			right: calc(var(--ace-peek-inset) + 50px) !important;
+			width: auto !important;
+		}
+
+		.autoplay-progress {
+			right: calc(var(--ace-peek-inset) + 8px) !important;
+		}
+	}
+}
