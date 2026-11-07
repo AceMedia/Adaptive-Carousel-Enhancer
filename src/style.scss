@@ -2203,12 +2203,12 @@ $spacing-mobile: 10px;
 			transition: opacity .3s ease;
 		}
 
-		.swiper-initialized > .swiper-wrapper > .swiper-slide:not(.swiper-slide-fully-visible) {
+		.swiper-initialized > .swiper-wrapper > .swiper-slide:not(.ace-peek-current) {
 			opacity: .55;
 			cursor: pointer;
 		}
 
-		.swiper-initialized > .swiper-wrapper > .swiper-slide:not(.swiper-slide-fully-visible):hover {
+		.swiper-initialized > .swiper-wrapper > .swiper-slide:not(.ace-peek-current):hover {
 			opacity: .8;
 		}
 

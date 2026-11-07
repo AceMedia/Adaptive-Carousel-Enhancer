@@ -224,12 +224,26 @@ window.addEventListener('resize', () => {
 // A click on a slide that is only peeking brings it into view instead of following its link, as
 // on phones. Keyboard focus already does the same through Swiper's A11y module.
 function bindPeekClicks(swiper, container) {
+  // Mark the slides in view, so the peeking ones can sit back. Swiper's own fully-visible class
+  // misses a slide that overhangs the frame by a fraction of a pixel.
+  const markCurrent = () => {
+    if (swiper.destroyed) {
+      return;
+    }
+    const perView = Math.max(1, Math.round(parseFloat(swiper.params.slidesPerView) || 1));
+    swiper.slides.forEach((slide, index) => {
+      slide.classList.toggle('ace-peek-current', index >= swiper.activeIndex && index < swiper.activeIndex + perView);
+    });
+  };
+  markCurrent();
+  ['slideChange', 'loopFix', 'breakpoint', 'resize'].forEach((name) => swiper.on(name, markCurrent));
+
   container.addEventListener('click', (event) => {
     if (!PEEK_DESKTOP.matches || swiper.destroyed) {
       return;
     }
     const slide = event.target.closest('.swiper-slide');
-    if (!slide || slide.classList.contains('swiper-slide-fully-visible') || event.target.closest('.swiper-button-prev, .swiper-button-next, .swiper-pagination')) {
+    if (!slide || slide.classList.contains('ace-peek-current') || event.target.closest('.swiper-button-prev, .swiper-button-next, .swiper-pagination')) {
       return;
     }
     event.preventDefault();
@@ -562,7 +576,6 @@ function initCarousels() {
           }
         });
       }
-      config.watchSlidesProgress = true;
       setPeekBleed(blockWrapper);
     }
 
