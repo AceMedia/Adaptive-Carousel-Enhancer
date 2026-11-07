@@ -58,6 +58,9 @@ The block is registered as `ace/adaptive-carousel` and uses a PHP render callbac
 - Edge fade masks for softer offscreen crop behavior
 - Arrow, bullet, progress, and timer color controls
 - Contrast-mode toggles for arrows, bullets, and timers
+- Phone peek (`data-mobile-peek="true"`, one slide per view): the carousel runs to the screen edges with the slides either side showing
+- Desktop peek (`data-desktop-peek="true"`, from 782px, any slides per view, slide effect): the carousel widens into its column's side padding (up to 48px, never past the column) and insets the slides so the ones either side show, dimmed; clicking a peeking slide brings it in, and a looping single-slide carousel keeps a slide on both sides even with three slides
+- Both peeks are data attributes a site sets, for example from a `render_block_ace/adaptive-carousel` filter; with reduced motion they move without animation
 
 ## Block Structure
 

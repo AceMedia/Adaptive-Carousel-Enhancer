@@ -187,6 +187,64 @@ function bindProgressbarAutoplayTimer(swiper, container, blockWrapper) {
   });
 }
 
+// ---------------------------------------------------------------------------
+// Desktop peek helpers
+// ---------------------------------------------------------------------------
+const PEEK_DESKTOP = window.matchMedia('(min-width: 782px)');
+const PEEK_MAX_BLEED = 48;
+const peekBlocks = new Set();
+
+// How far the carousel can widen into the side padding of the column it sits in, without passing
+// that column's edges, so the page never scrolls sideways. Read once per block and on resize.
+function setPeekBleed(blockWrapper) {
+  if (!blockWrapper) {
+    return;
+  }
+  peekBlocks.add(blockWrapper);
+  const column = blockWrapper.parentElement?.closest('.wp-block-column, .wp-block-post-content, main');
+  if (!column || !PEEK_DESKTOP.matches) {
+    blockWrapper.style.setProperty('--ace-peek-bleed', '0px');
+    return;
+  }
+  const current = parseFloat(blockWrapper.style.getPropertyValue('--ace-peek-bleed')) || 0;
+  const block = blockWrapper.getBoundingClientRect();
+  const frame = column.getBoundingClientRect();
+  const room = Math.min(block.left + current - frame.left, frame.right - (block.right - current));
+  const bleed = Math.max(0, Math.min(PEEK_MAX_BLEED, Math.floor(room)));
+  blockWrapper.style.setProperty('--ace-peek-bleed', `${bleed}px`);
+}
+
+let peekResizeFrame = 0;
+window.addEventListener('resize', () => {
+  cancelAnimationFrame(peekResizeFrame);
+  peekResizeFrame = requestAnimationFrame(() => peekBlocks.forEach(setPeekBleed));
+});
+
+// A click on a slide that is only peeking brings it into view instead of following its link, as
+// on phones. Keyboard focus already does the same through Swiper's A11y module.
+function bindPeekClicks(swiper, container) {
+  container.addEventListener('click', (event) => {
+    if (!PEEK_DESKTOP.matches || swiper.destroyed) {
+      return;
+    }
+    const slide = event.target.closest('.swiper-slide');
+    if (!slide || slide.classList.contains('swiper-slide-fully-visible') || event.target.closest('.swiper-button-prev, .swiper-button-next, .swiper-pagination')) {
+      return;
+    }
+    event.preventDefault();
+    event.stopPropagation();
+    const index = swiper.slides.indexOf(slide);
+    if (index < 0) {
+      return;
+    }
+    if (index < swiper.activeIndex) {
+      swiper.slidePrev();
+    } else {
+      swiper.slideNext();
+    }
+  }, true);
+}
+
 // Accept colour values only, never markup, declarations or CSS URLs.
 function safeColour(value, fallback) {
   return typeof value === 'string' && /^#[0-9a-f]{3,8}$/i.test(value) && [4, 5, 7, 9].includes(value.length) ? value : fallback;
@@ -479,8 +537,39 @@ function initCarousels() {
       };
     }
 
-    if (config.autoplay && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    // Desktop peek: from 782px the carousel widens into its column's side padding and insets the
+    // slides, so the slides either side show at the edges (style.scss does the insetting). Works
+    // for any number of slides per view, as it only narrows the frame Swiper measures.
+    const desktopPeek = blockWrapper?.dataset.desktopPeek === 'true' && effect === 'slide' && config.direction === 'horizontal';
+    if (desktopPeek) {
+      const peekGap = Math.min(config.spaceBetween, 16);
+      Object.keys(config.breakpoints).forEach((width) => {
+        if (parseInt(width, 10) >= 782) {
+          config.breakpoints[width] = { ...config.breakpoints[width], spaceBetween: peekGap };
+        }
+      });
+      const below = Object.keys(config.breakpoints).map(Number).filter((width) => width < 782).sort((a, b) => b - a)[0];
+      if (!config.breakpoints[782]) {
+        config.breakpoints[782] = { ...(below !== undefined ? config.breakpoints[below] : {}), spaceBetween: peekGap };
+      }
+      // One slide per view: centring it changes nothing on screen but makes a looping carousel keep
+      // a slide on each side of the current one, even with only three, so both peeks always show.
+      if (config.slidesPerView === 1 && config.loop) {
+        Object.keys(config.breakpoints).forEach((width) => {
+          if (parseInt(width, 10) >= 782) {
+            config.breakpoints[width].centeredSlides = true;
+          }
+        });
+      }
+      config.watchSlidesProgress = true;
+      setPeekBleed(blockWrapper);
+    }
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       config.autoplay = false;
+      if (desktopPeek || blockWrapper?.dataset.mobilePeek === 'true') {
+        config.speed = 0;
+      }
     }
 
     // Arrows outside the slider: move the container and its buttons into an arrow holder before
@@ -511,6 +600,22 @@ function initCarousels() {
 
     // Initialize Swiper with configuration
     let swiper = new Swiper(container, config);
+
+    if (desktopPeek) {
+      bindPeekClicks(swiper, container);
+    }
+
+    // Swiper's loop only moves slides round before a move, so with few slides the one after the
+    // current slide can be missing until the next move, and that peek shows empty. Settle the
+    // order after each move instead (desktop only: the phone's fractional, centred view does not
+    // take a settle without jumping).
+    if (desktopPeek && config.loop) {
+      swiper.on('slideChangeTransitionEnd', () => {
+        if (PEEK_DESKTOP.matches && !swiper.destroyed && !swiper.animating) {
+          swiper.loopFix();
+        }
+      });
+    }
 
     bindProgressbarAutoplayTimer(swiper, container, blockWrapper);
 

@@ -2172,3 +2172,50 @@ $spacing-mobile: 10px;
 		}
 	}
 }
+
+// Desktop peek: the carousel widens into the side padding of its column (--ace-peek-bleed, measured
+// in frontend.js and never past the column's edges) and insets the slides, so the slides either side
+// show at the edges and read as more to come. The arrows, bullets and timer stay over the current
+// slide. Any number of slides per view: Swiper only measures the narrower frame.
+@media (min-width: 782px) {
+	.swiper-slider-block[data-desktop-peek="true"] {
+		--ace-peek-bleed: 0px;
+		--ace-peek-inset: clamp(24px, 4%, 64px);
+		position: relative;
+		width: calc(100% + 2 * var(--ace-peek-bleed)) !important;
+		max-width: none !important;
+		margin-left: calc(-1 * var(--ace-peek-bleed)) !important;
+		margin-right: calc(-1 * var(--ace-peek-bleed)) !important;
+		overflow-x: clip;
+
+		> .swiper,
+		> .arrowHolder {
+			margin-left: calc(var(--ace-peek-bleed) + var(--ace-peek-inset)) !important;
+			margin-right: calc(var(--ace-peek-bleed) + var(--ace-peek-inset)) !important;
+		}
+
+		.swiper.swiper-initialized {
+			overflow: visible;
+		}
+
+		// The slides either side sit back a little, so the current one leads.
+		.swiper-initialized > .swiper-wrapper > .swiper-slide {
+			transition: opacity .3s ease;
+		}
+
+		.swiper-initialized > .swiper-wrapper > .swiper-slide:not(.swiper-slide-fully-visible) {
+			opacity: .55;
+			cursor: pointer;
+		}
+
+		.swiper-initialized > .swiper-wrapper > .swiper-slide:not(.swiper-slide-fully-visible):hover {
+			opacity: .8;
+		}
+
+		@media (prefers-reduced-motion: reduce) {
+			.swiper-initialized > .swiper-wrapper > .swiper-slide {
+				transition: none;
+			}
+		}
+	}
+}
