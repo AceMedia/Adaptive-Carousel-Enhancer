@@ -201,7 +201,8 @@ function setPeekBleed(blockWrapper) {
     return;
   }
   peekBlocks.add(blockWrapper);
-  const column = blockWrapper.parentElement?.closest('.wp-block-column, .wp-block-post-content, main');
+  const parent = blockWrapper.parentElement;
+  const column = parent?.closest('.wp-block-column') || parent?.closest('main') || parent;
   if (!column || !PEEK_DESKTOP.matches) {
     blockWrapper.style.setProperty('--ace-peek-bleed', '0px');
     return;
