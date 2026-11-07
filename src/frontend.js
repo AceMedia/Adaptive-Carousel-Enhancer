@@ -626,7 +626,13 @@ function initCarousels() {
     if (desktopPeek && config.loop) {
       swiper.on('slideChangeTransitionEnd', () => {
         if (PEEK_DESKTOP.matches && !swiper.destroyed && !swiper.animating) {
+          // The settle is an instant internal move, which pauses autoplay until a CSS transition
+          // ends that never comes, so pick autoplay back up afterwards.
+          const autoplaying = swiper.autoplay?.running && !swiper.autoplay.paused;
           swiper.loopFix();
+          if (autoplaying && swiper.autoplay.running && swiper.autoplay.paused) {
+            swiper.autoplay.resume();
+          }
         }
       });
     }
