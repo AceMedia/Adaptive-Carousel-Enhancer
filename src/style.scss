@@ -2295,7 +2295,7 @@ $spacing-mobile: 10px;
 	--ace-pc-dot: #2d2d2d;
 	--ace-pc-dot-opacity: .4;
 	--ace-pc-on: var(--wp--preset--color--primary, #31953e);
-	--ace-pc-glow: 0 10px 34px rgba(0, 0, 0, .5), 0 0 0 1px rgba(0, 0, 0, .18);
+	--ace-pc-glow: 0 10px 34px rgba(0, 0, 0, .5);
 	--ace-pc-chevron: 40px;
 	position: relative;
 	padding-bottom: 0 !important;
@@ -2508,6 +2508,30 @@ $spacing-mobile: 10px;
 		transform: translateX(calc(-1 * var(--ace-pc-tuck)));
 	}
 
+	// Depth: the slides either side sit back, a touch smaller, scaled from the edge nearest the current
+	// slide so the gap between them holds; hovering one brings it forward to full size. The glow is a
+	// soft shadow with no hard edge, rounded with the card.
+	@media (min-width: 1025px) {
+		.swiper-initialized > .swiper-wrapper > .swiper-slide {
+			border-radius: 8px;
+		}
+		.swiper-initialized > .swiper-wrapper > .swiper-slide:not(.ace-peek-current) {
+			transform: scale(.94);
+		}
+		.swiper-initialized > .swiper-wrapper > .swiper-slide-prev {
+			transform-origin: right center;
+		}
+		.swiper-initialized > .swiper-wrapper > .swiper-slide-next {
+			transform-origin: left center;
+		}
+		&.ace-tuck-prev .swiper-initialized > .swiper-wrapper > .swiper-slide-prev {
+			transform: translateX(var(--ace-pc-tuck)) scale(1);
+		}
+		&.ace-tuck-next .swiper-initialized > .swiper-wrapper > .swiper-slide-next {
+			transform: translateX(calc(-1 * var(--ace-pc-tuck))) scale(1);
+		}
+	}
+
 	&.ace-tuck-prev .ace-pc-bar > .swiper-button-prev {
 		width: calc(var(--ace-pc-l) - var(--ace-pc-gap) + var(--ace-pc-tuck)) !important;
 	}
@@ -2590,7 +2614,7 @@ html.pp-dark-mode .swiper-slider-block.ace-peek-controls,
 .is-dark-theme .swiper-slider-block.ace-peek-controls {
 	--ace-pc-dot: #bed1cb;
 	--ace-pc-dot-opacity: .45;
-	--ace-pc-glow: 0 0 0 1px rgba(190, 209, 203, .55), 0 0 32px rgba(190, 209, 203, .42);
+	--ace-pc-glow: 0 0 32px rgba(190, 209, 203, .35);
 }
 
 // Fitted titles (frontend.js sets their size per slide on desktop): whole words only, tight lines.
