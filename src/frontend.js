@@ -603,7 +603,9 @@ function initCarousels() {
       setPeekBleed(blockWrapper);
     }
 
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    // The device's reduced-motion setting, or the site's own Reduce motion switch (window.aceReducedMotion,
+    // set before first paint by the settings panel).
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || window.aceReducedMotion) {
       config.autoplay = false;
       if (desktopPeek || blockWrapper?.dataset.mobilePeek === 'true') {
         config.speed = 0;
