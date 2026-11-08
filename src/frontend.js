@@ -634,6 +634,9 @@ function initCarousels() {
       watchOverflow: blockWrapper?.dataset.watchOverflow !== 'false',
       rewind: blockWrapper?.dataset.rewind === 'true',
       slidesPerGroup: Math.min(parseInt(blockWrapper?.dataset.slidesPerGroup || '1', 10), 10), // Move in groups of 10
+
+      // Slides sit in a ul (the post template), so they must stay list items rather than A11y's default "group".
+      a11y: { slideRole: 'listitem' },
     };
 
     // Navigation
