@@ -549,11 +549,31 @@ function fitSlideTitles(swiper, blockWrapper) {
   blockWrapper.classList.add('ace-titles-fitted');
 }
 
+// The slide text stays hidden until it is fitted (see style.scss), so it can change size without
+// moving anything a reader can see. Fit once the web fonts have arrived, so the size is not worked
+// out twice (once in the fallback font, again in Paddy Sans), and never wait past FIT_WAIT.
+const FIT_WAIT = 2500;
 function bindTitleFit(swiper, blockWrapper) {
   const run = () => fitSlideTitles(swiper, blockWrapper);
-  run();
-  if (document.fonts?.ready) {
-    document.fonts.ready.then(run);
+  if (document.fonts?.ready && document.fonts.status !== 'loaded') {
+    let fitted = false;
+    const first = () => {
+      if (!fitted) {
+        fitted = true;
+        run();
+      }
+    };
+    const timer = setTimeout(first, FIT_WAIT);
+    document.fonts.ready.then(() => {
+      clearTimeout(timer);
+      if (fitted) {
+        run(); // the fonts came after the wait ran out
+      } else {
+        first();
+      }
+    });
+  } else {
+    run();
   }
   let timer = 0;
   window.addEventListener('resize', () => {

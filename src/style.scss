@@ -2576,3 +2576,43 @@ html.pp-dark-mode .swiper-slider-block.ace-peek-controls,
 		text-wrap: balance;
 	}
 }
+
+// Until frontend.js has fitted the titles, a carousel that fits them keeps each slide's text
+// invisible, so the text can change size without a layout shift, then fades it in. The cover's inner
+// container fills the slide and centres its columns, so the image beside the text holds its place
+// while the text column changes height. Without the script the text shows after four seconds anyway.
+@keyframes ace-fit-reveal {
+	to {
+		opacity: 1;
+	}
+}
+
+@media (min-width: 782px) {
+	.swiper-slider-block[data-desktop-peek="true"]:is([data-effect="slide"], :not([data-effect])):not([data-direction="vertical"]):not([data-peek-controls="false"]):not([data-arrows-outside="true"]):not([data-fit-titles="false"]) {
+		.swiper-slide .wp-block-cover > .wp-block-cover__inner-container {
+			align-self: stretch;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+		}
+
+		.swiper-slide :is(.wp-block-post-title, .wp-block-post-title ~ *) {
+			transition: opacity .25s ease;
+		}
+
+		&:not(.ace-titles-fitted) .swiper-slide :is(.wp-block-post-title, .wp-block-post-title ~ *) {
+			opacity: 0;
+			animation: ace-fit-reveal 0s linear 4s forwards;
+		}
+	}
+}
+
+html.ace-a11y-reduce-motion .swiper-slider-block .swiper-slide :is(.wp-block-post-title, .wp-block-post-title ~ *) {
+	transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.swiper-slider-block .swiper-slide :is(.wp-block-post-title, .wp-block-post-title ~ *) {
+		transition: none;
+	}
+}
