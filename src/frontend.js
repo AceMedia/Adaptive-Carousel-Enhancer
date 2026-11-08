@@ -517,12 +517,15 @@ function fitSlideTitles(swiper, blockWrapper) {
     if (!title) {
       return;
     }
-    // The room the title has: the slide's inner height (inside the cover's padding) less the rest
-    // of the text group it sits in.
+    // The room the title has: the slide's inner height (inside the cover's padding, and the padding of
+    // the column the text sits in, where a theme pads that instead) less the rest of the text group.
     const box = slide.querySelector('.wp-block-cover') || slide;
     const group = title.parentElement;
     const boxStyle = getComputedStyle(box);
-    const inner = height - (parseFloat(boxStyle.paddingTop) || 0) - (parseFloat(boxStyle.paddingBottom) || 0);
+    const column = title.closest('.wp-block-column');
+    const columnStyle = column && box.contains(column) ? getComputedStyle(column) : null;
+    const inner = height - (parseFloat(boxStyle.paddingTop) || 0) - (parseFloat(boxStyle.paddingBottom) || 0)
+      - (columnStyle ? (parseFloat(columnStyle.paddingTop) || 0) + (parseFloat(columnStyle.paddingBottom) || 0) : 0);
     const titleHeight = title.getBoundingClientRect().height;
     const budget = inner - (group.getBoundingClientRect().height - titleHeight) - 4;
     const max = Math.max(FIT_MIN, Math.min(64, title.clientWidth * 0.16));
