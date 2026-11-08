@@ -1,6 +1,6 @@
 {
   "name": "adaptive-carousel-enhancer",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "main": "index.js",
   "scripts": {
     "build": "wp-scripts build && npm run build:scss && npm run minify:css && npm run minify:js",

@@ -2137,7 +2137,7 @@ $spacing-mobile: 10px;
 }
 
 // Phone peek: the carousel runs to the screen edges with the slides either side showing, and the
-// controls stay fixed over the current slide. The inset matches slidesPerView 1.14 in frontend.js.
+// controls stay fixed over the current slide. The inset leaves a slide 87.7% of the screen wide.
 @media (max-width: 781px) {
 	.swiper-slider-block[data-mobile-peek="true"] {
 		--ace-peek-inset: calc(6.14% + .5px);
@@ -2147,28 +2147,35 @@ $spacing-mobile: 10px;
 		max-width: 100vw;
 		margin-left: -50vw !important;
 		margin-right: 0 !important;
+		overflow-x: clip;
 
-		&:not(:has(.swiper-initialized)) .wp-block-post-template > *:first-child {
-			width: 87.7%;
-			margin-inline: auto;
+		// The frame Swiper measures is the current slide; the slides either side overhang it.
+		> .swiper,
+		> .arrowHolder {
+			margin-left: var(--ace-peek-inset) !important;
+			margin-right: var(--ace-peek-inset) !important;
+		}
+
+		.swiper.swiper-initialized {
+			overflow: visible;
 		}
 
 		.swiper-button-prev {
-			left: var(--ace-peek-inset) !important;
+			left: 0 !important;
 		}
 
 		.swiper-button-next {
-			right: var(--ace-peek-inset) !important;
+			right: 0 !important;
 		}
 
 		.swiper-pagination {
-			left: calc(var(--ace-peek-inset) + 50px) !important;
-			right: calc(var(--ace-peek-inset) + 50px) !important;
+			left: 50px !important;
+			right: 50px !important;
 			width: auto !important;
 		}
 
 		.autoplay-progress {
-			right: calc(var(--ace-peek-inset) + 8px) !important;
+			right: 8px !important;
 		}
 	}
 }
@@ -2180,7 +2187,7 @@ $spacing-mobile: 10px;
 @media (min-width: 782px) {
 	.swiper-slider-block[data-desktop-peek="true"] {
 		--ace-peek-bleed: 0px;
-		--ace-peek-inset: clamp(24px, 4%, 64px);
+		--ace-peek-inset: clamp(40px, 5%, 64px);
 		position: relative;
 		width: calc(100% + 2 * var(--ace-peek-bleed)) !important;
 		max-width: none !important;
@@ -2216,6 +2223,20 @@ $spacing-mobile: 10px;
 			.swiper-initialized > .swiper-wrapper > .swiper-slide {
 				transition: none;
 			}
+		}
+	}
+}
+
+// Keyboard focus on the arrows and bullets: a white ring inside a brand ring, so it shows over
+// photos and on light and dark pages alike.
+.swiper-slider-block {
+	.swiper-button-prev,
+	.swiper-button-next,
+	.swiper-pagination-bullet {
+		&:focus-visible {
+			outline: 2px solid #ffffff !important;
+			outline-offset: 0;
+			box-shadow: 0 0 0 4px var(--wp--preset--color--primary, #31953e);
 		}
 	}
 }

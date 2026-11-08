@@ -221,6 +221,26 @@ window.addEventListener('resize', () => {
   peekResizeFrame = requestAnimationFrame(() => peekBlocks.forEach(setPeekBleed));
 });
 
+// The slides either side overhang the frame, so focusing a control or a link in a slide can make
+// the browser scroll a clipping ancestor (overflow hidden is still scrollable by script and focus),
+// which leaves the whole carousel off-centre. Put any such ancestor back.
+function resetClippedScroll(blockWrapper) {
+  for (let el = blockWrapper.parentElement; el && el !== document.body; el = el.parentElement) {
+    if (el.scrollLeft && getComputedStyle(el).overflowX === 'hidden') {
+      el.scrollLeft = 0;
+    }
+  }
+}
+
+function bindPeekScrollGuard(swiper, blockWrapper) {
+  const reset = () => requestAnimationFrame(() => resetClippedScroll(blockWrapper));
+  if (!blockWrapper.aceScrollGuard) {
+    blockWrapper.aceScrollGuard = true;
+    blockWrapper.addEventListener('focusin', reset);
+  }
+  swiper.on('slideChangeTransitionEnd', reset);
+}
+
 // A click on a slide that is only peeking brings it into view instead of following its link, as
 // on phones. Keyboard focus already does the same through Swiper's A11y module.
 function bindPeekClicks(swiper, container) {
@@ -407,7 +427,9 @@ function initCarousels() {
           renderBullet: (index, className) => {
             // Only apply custom color if contrast mode is disabled
             const colorStyle = !bulletContrastMode ? `style="background-color: ${bulletColor}"` : '';
-            return `<span class="${className}" ${colorStyle}></span>`;
+            // A custom renderBullet stops Swiper's A11y module naming the bullets, so name them here.
+            const a11yAttrs = paginationClickable ? ` role="button" aria-label="Go to slide ${index + 1}"` : '';
+            return `<span class="${className}" ${colorStyle}${a11yAttrs}></span>`;
           },
         };
         
@@ -547,7 +569,9 @@ function initCarousels() {
 
     if (blockWrapper?.dataset.mobilePeek === 'true' && config.slidesPerView === 1 && effect === 'slide') {
       config.breakpoints = {
-        0: { slidesPerView: 1.14, spaceBetween: 8, centeredSlides: true },
+        // One slide per view in a frame inset from the screen edges (style.scss), rather than 1.14
+        // slides: Swiper's loop then needs only two slides, so three still keep a slide each side.
+        0: { slidesPerView: 1, spaceBetween: 8, centeredSlides: true },
         782: { slidesPerView: 1, spaceBetween: config.spaceBetween, centeredSlides: config.centeredSlides },
       };
     }
@@ -621,11 +645,12 @@ function initCarousels() {
 
     // Swiper's loop only moves slides round before a move, so with few slides the one after the
     // current slide can be missing until the next move, and that peek shows empty. Settle the
-    // order after each move instead (desktop only: the phone's fractional, centred view does not
-    // take a settle without jumping).
-    if (desktopPeek && config.loop) {
+    // order after each move instead, on desktop and, with the phone peek, on phones.
+    const mobilePeek = blockWrapper?.dataset.mobilePeek === 'true' && config.slidesPerView === 1 && effect === 'slide';
+    if ((desktopPeek || mobilePeek) && config.loop) {
       swiper.on('slideChangeTransitionEnd', () => {
-        if (PEEK_DESKTOP.matches && !swiper.destroyed && !swiper.animating) {
+        const peeking = PEEK_DESKTOP.matches ? desktopPeek : mobilePeek;
+        if (peeking && !swiper.destroyed && !swiper.animating) {
           // The settle is an instant internal move, which pauses autoplay until a CSS transition
           // ends that never comes, so pick autoplay back up afterwards.
           const autoplaying = swiper.autoplay?.running && !swiper.autoplay.paused;
@@ -637,6 +662,9 @@ function initCarousels() {
       });
     }
 
+    if (desktopPeek || mobilePeek) {
+      bindPeekScrollGuard(swiper, blockWrapper);
+    }
     bindProgressbarAutoplayTimer(swiper, container, blockWrapper);
 
     // Immediately hide all animated elements to prevent initial flicker
@@ -775,8 +803,11 @@ function initCarousels() {
         // Reinitialize Swiper with updated config
         swiper = new Swiper(container, config);
 
+        if (desktopPeek || mobilePeek) {
+          bindPeekScrollGuard(swiper, blockWrapper);
+        }
         bindProgressbarAutoplayTimer(swiper, container, blockWrapper);
-        
+
         // Force create autoplay progress circle if autoplay is enabled
         if (autoplay && !useProgressbarAsTimer) {
           setTimeout(() => {
