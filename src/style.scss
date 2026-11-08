@@ -2136,6 +2136,33 @@ $spacing-mobile: 10px;
 	display: none !important;
 }
 
+// ...but the carousel then takes the height of its tallest slide, so a carousel that showed only its
+// first slide grew when Swiper started and moved everything under it. Lay the slides on top of each
+// other instead, the rest invisible, so the carousel is as tall as its tallest slide from the start.
+// Their large images stay out (they would all load at once): the first slide is there to hold the
+// image column's height, and the rest only add the height of their text. Desktop only: the phone
+// layout sizes its slides itself (_carousel-slides.scss in the theme).
+@media (min-width: 782px) {
+	.wp-block-ace-adaptive-carousel[data-slides="1"] .swiper:not(.swiper-initialized) .wp-block-post-template {
+		display: grid !important;
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.wp-block-ace-adaptive-carousel[data-slides="1"] .swiper:not(.swiper-initialized) .wp-block-post-template > * {
+		grid-area: 1 / 1;
+		min-width: 0;
+		display: flex !important; // as a Swiper slide is, so the first slide's cover fills the full height
+	}
+
+	.wp-block-ace-adaptive-carousel[data-slides="1"] .swiper:not(.swiper-initialized) .wp-block-post-template > *:not(:first-child) {
+		visibility: hidden;
+
+		:is(.wp-block-post-featured-image img, .wp-block-cover__image-background) {
+			display: none;
+		}
+	}
+}
+
 // Phone peek: the carousel runs to the screen edges with the slides either side showing, and the
 // controls stay fixed over the current slide. The inset leaves a slide 87.7% of the screen wide.
 @media (max-width: 781px) {
@@ -2567,8 +2594,11 @@ html.pp-dark-mode .swiper-slider-block.ace-peek-controls,
 }
 
 // Fitted titles (frontend.js sets their size per slide on desktop): whole words only, tight lines.
+// Keyed off the block's own attributes as well, so the lines are as tight before the script runs and
+// each slide is the height it will be.
 @media (min-width: 782px) {
-	.swiper-slider-block.ace-peek-controls .swiper-slide .wp-block-post-title {
+	.swiper-slider-block.ace-peek-controls .swiper-slide .wp-block-post-title,
+	.swiper-slider-block[data-desktop-peek="true"]:is([data-effect="slide"], :not([data-effect])):not([data-direction="vertical"]):not([data-peek-controls="false"]):not([data-arrows-outside="true"]) .swiper:not(.swiper-initialized) .wp-block-post-title {
 		overflow-wrap: normal !important;
 		word-break: normal !important;
 		hyphens: manual;
@@ -2603,6 +2633,14 @@ html.pp-dark-mode .swiper-slider-block.ace-peek-controls,
 		&:not(.ace-titles-fitted) .swiper-slide :is(.wp-block-post-title, .wp-block-post-title ~ *) {
 			opacity: 0;
 			animation: ace-fit-reveal 0s linear 4s forwards;
+		}
+
+		// The fit starts from each title's size without its inline block size (frontend.js clears it
+		// to measure), and the slides keep the height they have at that point. Use that size from the
+		// first paint, so the slides are already that height and the carousel doesn't grow when the
+		// fit runs.
+		&:not(.ace-titles-fitted):not(.ace-titles-fitting) h2.wp-block-post-title {
+			font-size: var(--wp--preset--font-size--x-large) !important;
 		}
 	}
 }
