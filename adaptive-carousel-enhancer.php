@@ -3,7 +3,7 @@
  * Plugin Name: Adaptive Carousel Enhancer
  * Description: Gutenberg block that turns inner blocks into SwiperJS slides.
  * Author: Shane Rounce
- * Version: 0.1.7
+ * Version: 0.1.8
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Text Domain: adaptive-carousel-enhancer

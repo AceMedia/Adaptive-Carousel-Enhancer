@@ -408,6 +408,31 @@ function bindPeekControls(swiper, blockWrapper, container, autoplayWanted) {
     button.addEventListener('blur', () => tuck(''));
   });
   swiper.on('slideChangeTransitionStart', () => tuck(''));
+  swiper.on('slideChangeTransitionEnd', () => {
+    const hovered = bar?.querySelector('.swiper-button-prev:hover, .swiper-button-next:hover');
+    if (hovered) {
+      tuck(hovered.classList.contains('swiper-button-prev') ? 'prev' : 'next');
+    }
+  });
+
+  // Swiper only pauses for a pointer over the slider itself; the arrows and bullets now sit
+  // outside it, so pause for them too.
+  if (bar && swiper.params.autoplay?.pauseOnMouseEnter) {
+    bar.addEventListener('mouseenter', () => {
+      if (swiper.autoplay?.running && !swiper.autoplay.paused) {
+        swiper.autoplay.pause();
+        bar.aceHoverPaused = true;
+      }
+    });
+    bar.addEventListener('mouseleave', () => {
+      if (bar.aceHoverPaused) {
+        bar.aceHoverPaused = false;
+        if (swiper.autoplay?.running && swiper.autoplay.paused && !blockWrapper.aceFocusPaused) {
+          swiper.autoplay.resume();
+        }
+      }
+    });
+  }
 
   // A change to the reader's motion setting stops or restarts autoplay at once.
   document.addEventListener('ace-a11y:motion', () => {
