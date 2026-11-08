@@ -2300,22 +2300,32 @@ $spacing-mobile: 10px;
 		transform: none !important;
 		display: flex !important;
 		align-items: center;
-		gap: 6px;
+		gap: 0;
 		margin: 0 !important;
 		padding: 0 !important;
 		z-index: auto;
 	}
 
+	// Each bullet is a 24px target (WCAG 2.5.8) drawn as an 8px dot in its middle, so the dots sit 24px
+	// apart with no gap between the targets.
 	.ace-pc-bar .swiper-pagination-bullet {
 		position: relative;
-		width: 8px !important;
-		height: 8px !important;
+		width: 24px !important;
+		height: 24px !important;
 		margin: 0 !important;
 		border-radius: 50%;
-		background: var(--ace-pc-dot) !important;
+		background: transparent !important;
 		opacity: var(--ace-pc-dot-opacity) !important;
-		transition: width .3s ease, height .3s ease, opacity .2s ease;
+		transition: opacity .2s ease;
 		cursor: pointer;
+
+		&::after {
+			content: '';
+			position: absolute;
+			inset: 8px;
+			border-radius: 50%;
+			background: var(--ace-pc-dot);
+		}
 
 		&:hover {
 			--ace-pc-dot-opacity: .8;
@@ -2324,15 +2334,16 @@ $spacing-mobile: 10px;
 
 	// The active bullet: a larger ring with a dot in the middle; the ring ticks down the autoplay time.
 	.ace-pc-bar .swiper-pagination-bullet-active {
-		width: 22px !important;
-		height: 22px !important;
-		background: transparent !important;
 		opacity: 1 !important;
+
+		&::after {
+			display: none;
+		}
 
 		&::before {
 			content: '';
 			position: absolute;
-			inset: 7px;
+			inset: 8px;
 			border-radius: 50%;
 			background: var(--ace-pc-on);
 		}
@@ -2340,7 +2351,7 @@ $spacing-mobile: 10px;
 
 	.ace-pc-ring {
 		position: absolute;
-		inset: 0;
+		inset: 1px;
 		display: none;
 		pointer-events: none;
 
