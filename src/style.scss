@@ -2268,7 +2268,8 @@ $spacing-mobile: 10px;
 	--ace-pc-dot: #2d2d2d;
 	--ace-pc-dot-opacity: .4;
 	--ace-pc-on: var(--wp--preset--color--primary, #31953e);
-	--ace-pc-arrow-bg: rgba(0, 0, 0, .62);
+	--ace-pc-glow: 0 10px 34px rgba(0, 0, 0, .5), 0 0 0 1px rgba(0, 0, 0, .18);
+	--ace-pc-chevron: 40px;
 	position: relative;
 	padding-bottom: 0 !important;
 
@@ -2402,40 +2403,27 @@ $spacing-mobile: 10px;
 		z-index: 12;
 		transition: width .35s cubic-bezier(.2, .7, .2, 1);
 
-		&::before {
-			content: '';
-			position: absolute;
-			left: 50%;
-			top: 50%;
-			width: var(--ace-pc-btn);
-			height: var(--ace-pc-btn);
-			border-radius: 50%;
-			background: var(--ace-pc-arrow-bg);
-			transform: translate(-50%, -50%);
-			transition: background-color .2s ease, transform .2s ease;
-		}
-
+		// Just the chevron, larger, with a soft shadow so it reads over any picture.
 		&::after {
 			position: relative;
-			font-size: 13px !important;
+			font-size: var(--ace-pc-chevron, 40px) !important;
 			font-weight: 900;
+			line-height: 1;
 			color: #ffffff !important;
+			filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .55)) drop-shadow(0 0 10px rgba(0, 0, 0, .35));
+			transition: transform .2s ease;
 		}
 
-		&:hover::before,
-		&:focus-visible::before {
-			background: var(--ace-pc-on);
-			transform: translate(-50%, -50%) scale(1.08);
+		&:hover::after,
+		&:focus-visible::after {
+			transform: scale(1.12);
 		}
 
 		&:focus-visible {
-			outline: none !important;
-			box-shadow: none !important;
-
-			&::before {
-				outline: 2px solid #ffffff;
-				box-shadow: 0 0 0 4px var(--ace-pc-on);
-			}
+			outline: 2px solid #ffffff !important;
+			outline-offset: -4px;
+			box-shadow: inset 0 0 0 6px var(--ace-pc-on) !important;
+			border-radius: 6px;
 		}
 
 		&.swiper-button-disabled {
@@ -2460,16 +2448,26 @@ $spacing-mobile: 10px;
 		transition: opacity .3s ease, transform .35s cubic-bezier(.2, .7, .2, 1), filter .3s ease;
 	}
 
+	.swiper-initialized > .swiper-wrapper > .swiper-slide {
+		transition: opacity .3s ease, transform .35s cubic-bezier(.2, .7, .2, 1), box-shadow .3s ease;
+	}
+
+	// The hovered side slide comes forward: full opacity, above the current slide, with a glow that
+	// suits the scheme (a dark shadow on light pages, a light glow on dark ones).
+	&.ace-tuck-prev .swiper-initialized > .swiper-wrapper > .swiper-slide-prev,
+	&.ace-tuck-next .swiper-initialized > .swiper-wrapper > .swiper-slide-next {
+		position: relative;
+		z-index: 5;
+		opacity: 1 !important;
+		box-shadow: var(--ace-pc-glow);
+	}
+
 	&.ace-tuck-prev .swiper-initialized > .swiper-wrapper > .swiper-slide-prev {
 		transform: translateX(var(--ace-pc-tuck));
-		opacity: .9;
-		filter: brightness(1.08);
 	}
 
 	&.ace-tuck-next .swiper-initialized > .swiper-wrapper > .swiper-slide-next {
 		transform: translateX(calc(-1 * var(--ace-pc-tuck)));
-		opacity: .9;
-		filter: brightness(1.08);
 	}
 
 	&.ace-tuck-prev .ace-pc-bar > .swiper-button-prev {
@@ -2493,28 +2491,15 @@ $spacing-mobile: 10px;
 			flex: 0 0 32px;
 			color: var(--ace-pc-dot) !important;
 
-			&::before {
-				width: 32px;
-				height: 32px;
-				background: transparent;
-				border: 1px solid currentColor;
-				opacity: .35;
-			}
-
 			&::after {
+				font-size: 22px !important;
 				color: inherit !important;
+				filter: none;
 			}
 
-			&:hover::before,
-			&:focus-visible::before {
-				background: var(--ace-pc-on);
-				border-color: var(--ace-pc-on);
-				opacity: 1;
-			}
-
-			&:hover::after,
-			&:focus-visible::after {
-				color: #ffffff !important;
+			&:hover,
+			&:focus-visible {
+				color: var(--ace-pc-on) !important;
 			}
 		}
 
@@ -2567,4 +2552,16 @@ html.pp-dark-mode .swiper-slider-block.ace-peek-controls,
 .is-dark-theme .swiper-slider-block.ace-peek-controls {
 	--ace-pc-dot: #bed1cb;
 	--ace-pc-dot-opacity: .45;
+	--ace-pc-glow: 0 0 0 1px rgba(190, 209, 203, .55), 0 0 32px rgba(190, 209, 203, .42);
+}
+
+// Fitted titles (frontend.js sets their size per slide on desktop): whole words only, tight lines.
+@media (min-width: 782px) {
+	.swiper-slider-block.ace-peek-controls .swiper-slide .wp-block-post-title {
+		overflow-wrap: normal !important;
+		word-break: normal !important;
+		hyphens: manual;
+		line-height: 1.08 !important;
+		text-wrap: balance;
+	}
 }

@@ -456,6 +456,76 @@ function bindPeekControls(swiper, blockWrapper, container, autoplayWanted) {
   });
 }
 
+// Desktop titles that fit their slide: each slide's title grows or shrinks between a minimum and a
+// maximum so it fills the space its slide has for it, measured per slide (as the phone layout does
+// by title length). The slides keep the height they had, so nothing around the carousel moves, and
+// titles only ever change size, never break mid-word.
+const FIT_MIN = 22;
+function fitSlideTitles(swiper, blockWrapper) {
+  if (swiper.destroyed) {
+    return;
+  }
+  const slides = Array.from(swiper.slides);
+  const titles = slides.map((slide) => slide.querySelector('.wp-block-post-title'));
+  slides.forEach((slide, i) => {
+    slide.style.minHeight = '';
+    if (titles[i]) {
+      titles[i].style.fontSize = '';
+    }
+  });
+  if (!PEEK_DESKTOP.matches || !titles.some(Boolean)) {
+    blockWrapper.classList.remove('ace-titles-fitted');
+    return;
+  }
+  blockWrapper.classList.add('ace-titles-fitting');
+  const height = Math.max(...slides.map((slide) => slide.getBoundingClientRect().height));
+  slides.forEach((slide) => { slide.style.minHeight = `${Math.round(height)}px`; });
+  slides.forEach((slide, i) => {
+    const title = titles[i];
+    if (!title) {
+      return;
+    }
+    const box = slide.querySelector('.wp-block-cover') || slide;
+    const titleHeight = title.getBoundingClientRect().height;
+    const budget = height - (box.scrollHeight - titleHeight) - 2;
+    const max = Math.max(FIT_MIN, Math.min(64, title.clientWidth * 0.16));
+    const fits = (size) => {
+      title.style.fontSize = `${size}px`;
+      return title.getBoundingClientRect().height <= budget && title.scrollWidth <= title.clientWidth + 1;
+    };
+    if (fits(max)) {
+      return;
+    }
+    let low = FIT_MIN;
+    let high = max;
+    for (let step = 0; step < 7; step++) {
+      const mid = (low + high) / 2;
+      if (fits(mid)) {
+        low = mid;
+      } else {
+        high = mid;
+      }
+    }
+    title.style.fontSize = `${Math.floor(low)}px`;
+  });
+  blockWrapper.classList.remove('ace-titles-fitting');
+  blockWrapper.classList.add('ace-titles-fitted');
+}
+
+function bindTitleFit(swiper, blockWrapper) {
+  const run = () => fitSlideTitles(swiper, blockWrapper);
+  run();
+  if (document.fonts?.ready) {
+    document.fonts.ready.then(run);
+  }
+  let timer = 0;
+  window.addEventListener('resize', () => {
+    clearTimeout(timer);
+    timer = setTimeout(run, 160);
+  });
+  swiper.on('breakpoint', run);
+}
+
 // Accept colour values only, never markup, declarations or CSS URLs.
 function safeColour(value, fallback) {
   return typeof value === 'string' && /^#[0-9a-f]{3,8}$/i.test(value) && [4, 5, 7, 9].includes(value.length) ? value : fallback;
@@ -854,6 +924,9 @@ function initCarousels() {
     }
     if (peekControls) {
       bindPeekControls(swiper, blockWrapper, container, autoplay);
+    }
+    if (peekControls && blockWrapper?.dataset.fitTitles !== 'false') {
+      bindTitleFit(swiper, blockWrapper);
     }
     bindProgressbarAutoplayTimer(swiper, container, blockWrapper);
 
