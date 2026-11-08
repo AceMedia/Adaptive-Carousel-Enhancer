@@ -344,8 +344,15 @@ function bindPeekControls(swiper, blockWrapper, container, autoplayWanted) {
   layout();
   ['breakpoint', 'resize', 'slideChangeTransitionEnd'].forEach((name) => swiper.on(name, layout));
   if ('ResizeObserver' in window) {
-    new ResizeObserver(() => requestAnimationFrame(layout)).observe(blockWrapper);
+    const observer = new ResizeObserver(() => requestAnimationFrame(layout));
+    observer.observe(blockWrapper);
+    observer.observe(container);
   }
+  // Measure again once the slider and any side columns have settled (a menu folding away moves the
+  // frame without always resizing it).
+  [250, 900].forEach((delay) => setTimeout(layout, delay));
+  ['pp:left-nav', 'transitionend'].forEach((name) => document.addEventListener(name, () => requestAnimationFrame(layout)));
+  window.addEventListener('load', layout);
 
   // The timer ring on every bullet; only the active one shows it.
   const addRings = () => {
