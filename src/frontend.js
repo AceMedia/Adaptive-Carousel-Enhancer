@@ -280,6 +280,150 @@ function bindPeekClicks(swiper, container) {
   }, true);
 }
 
+// Reduced motion: the device setting, or the reader's own choice from an accessibility panel that
+// sets html.ace-a11y-reduce-motion and window.aceReducedMotion (announced with ace-a11y:motion).
+function wantsReducedMotion() {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+    document.documentElement.classList.contains('ace-a11y-reduce-motion') ||
+    window.aceReducedMotion === true;
+}
+
+// Peek controls: with the slides either side showing, the arrows sit on those slides, the bullets
+// sit under the carousel on the page, and the autoplay timer is a slim ring on the active bullet,
+// so the current slide holds only its content. Built before Swiper starts (the buttons and bullets
+// move into a bar after the slider), then laid out from what is measured.
+const PC_MIN_STRIP = 22; // below this the side slides are too thin to carry an arrow
+const PC_RING = '<span class="ace-pc-ring" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false">' +
+  '<circle class="ace-pc-ring-track" cx="12" cy="12" r="10.5" pathLength="100"></circle>' +
+  '<circle class="ace-pc-ring-fill" cx="12" cy="12" r="10.5" pathLength="100"></circle></svg></span>';
+
+function buildPeekControls(blockWrapper, container, config) {
+  const bar = document.createElement('div');
+  bar.className = 'ace-pc-bar';
+  container.after(bar);
+  const prev = container.querySelector(':scope > .swiper-button-prev');
+  const next = container.querySelector(':scope > .swiper-button-next');
+  const pagination = config.pagination?.el;
+  if (prev) {
+    bar.appendChild(prev);
+  }
+  if (pagination) {
+    bar.appendChild(pagination);
+  }
+  if (next) {
+    bar.appendChild(next);
+  }
+  blockWrapper.classList.add('ace-peek-controls');
+  return bar;
+}
+
+function layoutPeekControls(swiper, blockWrapper, container) {
+  if (swiper.destroyed) {
+    return;
+  }
+  const block = blockWrapper.getBoundingClientRect();
+  const frame = container.getBoundingClientRect();
+  const gap = Math.max(0, parseFloat(swiper.params.spaceBetween) || 0);
+  const left = Math.max(0, frame.left - block.left);
+  const right = Math.max(0, block.right - frame.right);
+  const strip = Math.min(left, right) - gap;
+  const style = blockWrapper.style;
+  style.setProperty('--ace-pc-l', `${Math.round(left)}px`);
+  style.setProperty('--ace-pc-r', `${Math.round(right)}px`);
+  style.setProperty('--ace-pc-gap', `${Math.round(gap)}px`);
+  style.setProperty('--ace-pc-top', `${Math.round(frame.top - block.top)}px`);
+  style.setProperty('--ace-pc-h', `${Math.round(frame.height)}px`);
+  style.setProperty('--ace-pc-btn', `${Math.round(Math.max(24, Math.min(36, strip - 4)))}px`);
+  style.setProperty('--ace-pc-tuck', `${Math.round(Math.max(12, Math.min(36, strip * .75)))}px`);
+  blockWrapper.classList.toggle('ace-pc-compact', strip < PC_MIN_STRIP);
+}
+
+function bindPeekControls(swiper, blockWrapper, container, autoplayWanted) {
+  const bar = blockWrapper.querySelector(':scope > .ace-pc-bar');
+  const layout = () => layoutPeekControls(swiper, blockWrapper, container);
+  layout();
+  ['breakpoint', 'resize', 'slideChangeTransitionEnd'].forEach((name) => swiper.on(name, layout));
+  if ('ResizeObserver' in window) {
+    new ResizeObserver(() => requestAnimationFrame(layout)).observe(blockWrapper);
+  }
+
+  // The timer ring on every bullet; only the active one shows it.
+  const addRings = () => {
+    blockWrapper.querySelectorAll('.swiper-pagination-bullet').forEach((bullet) => {
+      if (!bullet.querySelector('.ace-pc-ring')) {
+        bullet.insertAdjacentHTML('beforeend', PC_RING);
+      }
+    });
+  };
+  addRings();
+  swiper.on('paginationRender', addRings);
+  const setRing = (progress) => {
+    const fill = blockWrapper.querySelector('.swiper-pagination-bullet-active .ace-pc-ring-fill');
+    if (fill) {
+      fill.style.strokeDashoffset = (100 * (1 - Math.max(0, Math.min(1, progress)))).toFixed(2);
+    }
+  };
+  swiper.on('paginationUpdate', () => {
+    blockWrapper.querySelectorAll('.ace-pc-ring-fill').forEach((fill) => { fill.style.strokeDashoffset = '0'; });
+  });
+  swiper.on('autoplayTimeLeft', (_s, _time, progress) => setRing(progress));
+  const markStopped = () => blockWrapper.classList.toggle('ace-pc-stopped', !(swiper.autoplay && swiper.autoplay.running));
+  markStopped();
+  ['autoplayStart', 'autoplayStop'].forEach((name) => swiper.on(name, markStopped));
+
+  // Keyboard focus inside the carousel pauses the timer, as hovering does.
+  blockWrapper.addEventListener('focusin', () => {
+    if (swiper.autoplay?.running && !swiper.autoplay.paused) {
+      swiper.autoplay.pause();
+      blockWrapper.aceFocusPaused = true;
+    }
+  });
+  blockWrapper.addEventListener('focusout', (event) => {
+    if (blockWrapper.aceFocusPaused && !blockWrapper.contains(event.relatedTarget)) {
+      blockWrapper.aceFocusPaused = false;
+      if (swiper.autoplay?.running && swiper.autoplay.paused) {
+        swiper.autoplay.resume();
+      }
+    }
+  });
+
+  // Hovering or focusing a side slide or its arrow tucks that slide in a little.
+  const tuck = (side) => {
+    blockWrapper.classList.toggle('ace-tuck-prev', side === 'prev');
+    blockWrapper.classList.toggle('ace-tuck-next', side === 'next');
+  };
+  container.addEventListener('mouseover', (event) => {
+    const slide = event.target.closest('.swiper-slide');
+    tuck(slide?.classList.contains('swiper-slide-prev') ? 'prev' : slide?.classList.contains('swiper-slide-next') ? 'next' : '');
+  });
+  container.addEventListener('mouseleave', () => tuck(''));
+  [['prev', '.swiper-button-prev'], ['next', '.swiper-button-next']].forEach(([side, selector]) => {
+    const button = bar?.querySelector(selector);
+    if (!button) {
+      return;
+    }
+    button.addEventListener('mouseenter', () => tuck(side));
+    button.addEventListener('focus', () => tuck(side));
+    button.addEventListener('mouseleave', () => tuck(''));
+    button.addEventListener('blur', () => tuck(''));
+  });
+  swiper.on('slideChangeTransitionStart', () => tuck(''));
+
+  // A change to the reader's motion setting stops or restarts autoplay at once.
+  document.addEventListener('ace-a11y:motion', () => {
+    if (!swiper.autoplay || swiper.destroyed) {
+      return;
+    }
+    if (wantsReducedMotion()) {
+      swiper.autoplay.stop();
+    } else if (autoplayWanted && !swiper.autoplay.running) {
+      swiper.params.autoplay.enabled = true;
+      swiper.autoplay.start();
+    }
+    markStopped();
+  });
+}
+
 // Accept colour values only, never markup, declarations or CSS URLs.
 function safeColour(value, fallback) {
   return typeof value === 'string' && /^#[0-9a-f]{3,8}$/i.test(value) && [4, 5, 7, 9].includes(value.length) ? value : fallback;
@@ -605,11 +749,20 @@ function initCarousels() {
 
     // The device's reduced-motion setting, or the site's own Reduce motion switch (window.aceReducedMotion,
     // set before first paint by the settings panel).
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || window.aceReducedMotion) {
-      config.autoplay = false;
+    if (wantsReducedMotion()) {
+      // Keep the settings so autoplay can start later if the reader turns reduced motion off.
+      if (config.autoplay) {
+        config.autoplay.enabled = false;
+      }
       if (desktopPeek || blockWrapper?.dataset.mobilePeek === 'true') {
         config.speed = 0;
       }
+    }
+
+    const peekControls = (desktopPeek || (blockWrapper?.dataset.mobilePeek === 'true' && config.slidesPerView === 1 && effect === 'slide')) &&
+      blockWrapper?.dataset.peekControls !== 'false' && blockWrapper?.dataset.arrowsOutside !== 'true';
+    if (peekControls) {
+      buildPeekControls(blockWrapper, container, config);
     }
 
     // Arrows outside the slider: move the container and its buttons into an arrow holder before
@@ -667,6 +820,9 @@ function initCarousels() {
     if (desktopPeek || mobilePeek) {
       bindPeekScrollGuard(swiper, blockWrapper);
     }
+    if (peekControls) {
+      bindPeekControls(swiper, blockWrapper, container, autoplay);
+    }
     bindProgressbarAutoplayTimer(swiper, container, blockWrapper);
 
     // Immediately hide all animated elements to prevent initial flicker
@@ -688,7 +844,7 @@ function initCarousels() {
     }, 100); // Reduced delay for faster response
 
     // Force create autoplay progress circle if autoplay is enabled
-    if (autoplay && !useProgressbarAsTimer) {
+    if (autoplay && !useProgressbarAsTimer && !peekControls) {
       // Create the progress circle with a timeout to ensure Swiper is fully initialized
       setTimeout(() => {
         let autoplayProgress = container.querySelector(".autoplay-progress");

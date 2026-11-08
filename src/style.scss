@@ -2240,3 +2240,331 @@ $spacing-mobile: 10px;
 		}
 	}
 }
+
+// Peek controls (frontend.js builds them when the slides either side show): the arrows sit on those
+// slides, the bullets sit under the carousel on the page, and the autoplay timer is a slim ring that
+// ticks down around the larger active bullet. The current slide is left with only its content.
+// The space for the bar is reserved before the script runs, so nothing moves when it arrives.
+.swiper-slider-block[data-desktop-peek="true"]:not([data-peek-controls="false"]):not([data-arrows-outside="true"]) {
+	--ace-pc-bar-h: 44px;
+	padding-bottom: var(--ace-pc-bar-h);
+}
+
+@media (max-width: 781px) {
+	.swiper-slider-block[data-mobile-peek="true"]:not([data-peek-controls="false"]):not([data-arrows-outside="true"]) {
+		--ace-pc-bar-h: 44px;
+		padding-bottom: var(--ace-pc-bar-h);
+	}
+}
+
+.swiper-slider-block.ace-peek-controls {
+	--ace-pc-l: 0px;
+	--ace-pc-r: 0px;
+	--ace-pc-gap: 16px;
+	--ace-pc-top: 0px;
+	--ace-pc-h: 100%;
+	--ace-pc-btn: 32px;
+	--ace-pc-tuck: 20px;
+	--ace-pc-dot: #2d2d2d;
+	--ace-pc-dot-opacity: .4;
+	--ace-pc-on: var(--wp--preset--color--primary, #31953e);
+	--ace-pc-arrow-bg: rgba(0, 0, 0, .62);
+	position: relative;
+	padding-bottom: 0 !important;
+
+	// The phone layout's hairline over the old in-slide controls.
+	&::after {
+		display: none !important;
+	}
+
+	> .swiper > .autoplay-progress {
+		display: none !important;
+	}
+
+	> .ace-pc-bar {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 12px;
+		height: var(--ace-pc-bar-h, 44px);
+		padding: 8px var(--ace-pc-r) 0 var(--ace-pc-l);
+		box-sizing: border-box;
+	}
+
+	.ace-pc-bar > .swiper-pagination {
+		position: static !important;
+		inset: auto !important;
+		width: auto !important;
+		height: auto !important;
+		transform: none !important;
+		display: flex !important;
+		align-items: center;
+		gap: 6px;
+		margin: 0 !important;
+		padding: 0 !important;
+		z-index: auto;
+	}
+
+	.ace-pc-bar .swiper-pagination-bullet {
+		position: relative;
+		width: 8px !important;
+		height: 8px !important;
+		margin: 0 !important;
+		border-radius: 50%;
+		background: var(--ace-pc-dot) !important;
+		opacity: var(--ace-pc-dot-opacity) !important;
+		transition: width .3s ease, height .3s ease, opacity .2s ease;
+		cursor: pointer;
+
+		&:hover {
+			--ace-pc-dot-opacity: .8;
+		}
+	}
+
+	// The active bullet: a larger ring with a dot in the middle; the ring ticks down the autoplay time.
+	.ace-pc-bar .swiper-pagination-bullet-active {
+		width: 22px !important;
+		height: 22px !important;
+		background: transparent !important;
+		opacity: 1 !important;
+
+		&::before {
+			content: '';
+			position: absolute;
+			inset: 7px;
+			border-radius: 50%;
+			background: var(--ace-pc-on);
+		}
+	}
+
+	.ace-pc-ring {
+		position: absolute;
+		inset: 0;
+		display: none;
+		pointer-events: none;
+
+		svg {
+			display: block;
+			width: 100%;
+			height: 100%;
+			transform: rotate(-90deg);
+			overflow: visible;
+		}
+	}
+
+	.swiper-pagination-bullet-active .ace-pc-ring {
+		display: block;
+	}
+
+	.ace-pc-ring-track,
+	.ace-pc-ring-fill {
+		fill: none;
+		stroke-width: 2;
+	}
+
+	.ace-pc-ring-track {
+		stroke: var(--ace-pc-dot);
+		stroke-opacity: .3;
+	}
+
+	.ace-pc-ring-fill {
+		stroke: var(--ace-pc-on);
+		stroke-linecap: round;
+		stroke-dasharray: 100;
+		stroke-dashoffset: 0;
+	}
+
+	// No autoplay, or it has stopped: the active bullet is simply larger, with a solid ring.
+	&.ace-pc-stopped {
+		.ace-pc-ring-fill {
+			stroke-dashoffset: 0 !important;
+		}
+	}
+
+	// Arrows: strips over the visible part of the slides either side, with a round chevron in the
+	// middle. Hovering or focusing one tucks that slide in, and the strip follows it.
+	.ace-pc-bar > .swiper-button-prev,
+	.ace-pc-bar > .swiper-button-next {
+		position: absolute !important;
+		top: var(--ace-pc-top) !important;
+		bottom: auto !important;
+		height: var(--ace-pc-h) !important;
+		width: calc(var(--ace-pc-l) - var(--ace-pc-gap)) !important;
+		margin: 0 !important;
+		padding: 0 !important;
+		border: 0 !important;
+		border-radius: 0;
+		background: transparent !important;
+		color: #ffffff !important;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		z-index: 12;
+		transition: width .35s cubic-bezier(.2, .7, .2, 1);
+
+		&::before {
+			content: '';
+			position: absolute;
+			left: 50%;
+			top: 50%;
+			width: var(--ace-pc-btn);
+			height: var(--ace-pc-btn);
+			border-radius: 50%;
+			background: var(--ace-pc-arrow-bg);
+			transform: translate(-50%, -50%);
+			transition: background-color .2s ease, transform .2s ease;
+		}
+
+		&::after {
+			position: relative;
+			font-size: 13px !important;
+			font-weight: 900;
+			color: #ffffff !important;
+		}
+
+		&:hover::before,
+		&:focus-visible::before {
+			background: var(--ace-pc-on);
+			transform: translate(-50%, -50%) scale(1.08);
+		}
+
+		&:focus-visible {
+			outline: none !important;
+			box-shadow: none !important;
+
+			&::before {
+				outline: 2px solid #ffffff;
+				box-shadow: 0 0 0 4px var(--ace-pc-on);
+			}
+		}
+
+		&.swiper-button-disabled {
+			opacity: 0 !important;
+			pointer-events: none;
+		}
+	}
+
+	.ace-pc-bar > .swiper-button-prev {
+		left: 0 !important;
+		right: auto !important;
+	}
+
+	.ace-pc-bar > .swiper-button-next {
+		right: 0 !important;
+		left: auto !important;
+		width: calc(var(--ace-pc-r) - var(--ace-pc-gap)) !important;
+	}
+
+	// The tuck: the side slide moves in and lifts; its arrow strip widens with it.
+	.swiper-initialized > .swiper-wrapper > .swiper-slide {
+		transition: opacity .3s ease, transform .35s cubic-bezier(.2, .7, .2, 1), filter .3s ease;
+	}
+
+	&.ace-tuck-prev .swiper-initialized > .swiper-wrapper > .swiper-slide-prev {
+		transform: translateX(var(--ace-pc-tuck));
+		opacity: .9;
+		filter: brightness(1.08);
+	}
+
+	&.ace-tuck-next .swiper-initialized > .swiper-wrapper > .swiper-slide-next {
+		transform: translateX(calc(-1 * var(--ace-pc-tuck)));
+		opacity: .9;
+		filter: brightness(1.08);
+	}
+
+	&.ace-tuck-prev .ace-pc-bar > .swiper-button-prev {
+		width: calc(var(--ace-pc-l) - var(--ace-pc-gap) + var(--ace-pc-tuck)) !important;
+	}
+
+	&.ace-tuck-next .ace-pc-bar > .swiper-button-next {
+		width: calc(var(--ace-pc-r) - var(--ace-pc-gap) + var(--ace-pc-tuck)) !important;
+	}
+
+	// Thin side slides (phones and narrow columns): the arrows sit beside the bullets instead.
+	&.ace-pc-compact {
+		.ace-pc-bar > .swiper-button-prev,
+		.ace-pc-bar > .swiper-button-next {
+			position: relative !important;
+			top: auto !important;
+			left: auto !important;
+			right: auto !important;
+			width: 32px !important;
+			height: 32px !important;
+			flex: 0 0 32px;
+			color: var(--ace-pc-dot) !important;
+
+			&::before {
+				width: 32px;
+				height: 32px;
+				background: transparent;
+				border: 1px solid currentColor;
+				opacity: .35;
+			}
+
+			&::after {
+				color: inherit !important;
+			}
+
+			&:hover::before,
+			&:focus-visible::before {
+				background: var(--ace-pc-on);
+				border-color: var(--ace-pc-on);
+				opacity: 1;
+			}
+
+			&:hover::after,
+			&:focus-visible::after {
+				color: #ffffff !important;
+			}
+		}
+
+		&.ace-tuck-prev .swiper-initialized > .swiper-wrapper > .swiper-slide-prev,
+		&.ace-tuck-next .swiper-initialized > .swiper-wrapper > .swiper-slide-next {
+			transform: none;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.swiper-initialized > .swiper-wrapper > .swiper-slide,
+		.ace-pc-bar > .swiper-button-prev,
+		.ace-pc-bar > .swiper-button-next,
+		.ace-pc-bar .swiper-pagination-bullet {
+			transition: none !important;
+		}
+
+		&.ace-tuck-prev .swiper-initialized > .swiper-wrapper > .swiper-slide-prev,
+		&.ace-tuck-next .swiper-initialized > .swiper-wrapper > .swiper-slide-next {
+			transform: none;
+		}
+
+		.ace-pc-ring-fill {
+			stroke-dashoffset: 0 !important;
+		}
+	}
+}
+
+// The reader's own Reduce motion switch: the same as the device setting.
+html.ace-a11y-reduce-motion .swiper-slider-block.ace-peek-controls {
+	.swiper-initialized > .swiper-wrapper > .swiper-slide,
+	.ace-pc-bar > .swiper-button-prev,
+	.ace-pc-bar > .swiper-button-next,
+	.ace-pc-bar .swiper-pagination-bullet {
+		transition: none !important;
+	}
+
+	&.ace-tuck-prev .swiper-initialized > .swiper-wrapper > .swiper-slide-prev,
+	&.ace-tuck-next .swiper-initialized > .swiper-wrapper > .swiper-slide-next {
+		transform: none;
+	}
+
+	.ace-pc-ring-fill {
+		stroke-dashoffset: 0 !important;
+	}
+}
+
+// Dark pages: the bullets and compact arrows on the page background use the light grey.
+html.pp-dark-mode .swiper-slider-block.ace-peek-controls,
+.is-dark-theme .swiper-slider-block.ace-peek-controls {
+	--ace-pc-dot: #bed1cb;
+	--ace-pc-dot-opacity: .45;
+}
