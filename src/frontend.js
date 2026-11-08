@@ -241,6 +241,38 @@ function bindPeekScrollGuard(swiper, blockWrapper) {
   swiper.on('slideChangeTransitionEnd', reset);
 }
 
+// Swiper's loop moves slide nodes around the track when it slides to a focused slide, and a moved
+// node loses focus, so a keyboard user tabbing into the carousel lands back on <body>. Put focus
+// back on the element that had it.
+function bindFocusKeeper(swiper, blockWrapper) {
+  if (!blockWrapper) {
+    return;
+  }
+  const restore = () => {
+    const last = blockWrapper.aceLastFocus;
+    if (last && last.isConnected && (document.activeElement === document.body || !document.activeElement)) {
+      last.focus({ preventScroll: true });
+    }
+  };
+  const later = () => setTimeout(restore, 0);
+  if (!blockWrapper.aceFocusKeeper) {
+    blockWrapper.aceFocusKeeper = true;
+    blockWrapper.addEventListener('focusin', (event) => {
+      blockWrapper.aceLastFocus = event.target;
+    });
+    blockWrapper.addEventListener('focusout', (event) => {
+      if (event.relatedTarget && !blockWrapper.contains(event.relatedTarget)) {
+        blockWrapper.aceLastFocus = null; // focus left the carousel on purpose
+      } else if (!event.relatedTarget) {
+        later();
+      }
+    });
+  }
+  swiper.on('loopFix', later);
+  swiper.on('slideChange', later);
+  swiper.on('slideChangeTransitionEnd', restore);
+}
+
 // A click on a slide that is only peeking brings it into view instead of following its link, as
 // on phones. Keyboard focus already does the same through Swiper's A11y module.
 function bindPeekClicks(swiper, container) {
@@ -930,6 +962,7 @@ function initCarousels() {
     if (desktopPeek || mobilePeek) {
       bindPeekScrollGuard(swiper, blockWrapper);
     }
+    bindFocusKeeper(swiper, blockWrapper);
     if (peekControls) {
       bindPeekControls(swiper, blockWrapper, container, autoplay);
     }
@@ -1077,6 +1110,7 @@ function initCarousels() {
         if (desktopPeek || mobilePeek) {
           bindPeekScrollGuard(swiper, blockWrapper);
         }
+        bindFocusKeeper(swiper, blockWrapper);
         bindProgressbarAutoplayTimer(swiper, container, blockWrapper);
 
         // Force create autoplay progress circle if autoplay is enabled
