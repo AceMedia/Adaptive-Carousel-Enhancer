@@ -290,6 +290,36 @@ function bindPeekClicks(swiper, container) {
   markCurrent();
   ['slideChange', 'loopFix', 'breakpoint', 'resize'].forEach((name) => swiper.on(name, markCurrent));
 
+  // While a reader drags, each slide grows towards full size and strength as it nears the current
+  // place, and the one leaving sits back, so the slide being pulled in already looks like the current
+  // one. On release the classes take over again and the slides ease to their resting sizes.
+  const DRAG_SCALE = 0.94;
+  const DRAG_OPACITY = 0.55;
+  const clearDrag = () => {
+    container.classList.remove('ace-pc-dragging');
+    swiper.slides.forEach((slide) => {
+      slide.style.removeProperty('--ace-drag-s');
+      slide.style.removeProperty('--ace-drag-o');
+      slide.style.removeProperty('--ace-drag-origin');
+    });
+  };
+  swiper.on('sliderMove', () => {
+    if (swiper.destroyed || !PEEK_DESKTOP.matches || container.matches('.ace-tuck-prev, .ace-tuck-next')) {
+      return;
+    }
+    container.classList.add('ace-pc-dragging');
+    const gap = parseFloat(swiper.params.spaceBetween) || 0;
+    swiper.slides.forEach((slide, index) => {
+      const left = (slide.swiperSlideOffset || 0) + swiper.translate;
+      const step = (swiper.slidesSizesGrid[index] || slide.offsetWidth || 1) + gap;
+      const near = Math.max(0, Math.min(1, 1 - Math.abs(left) / step));
+      slide.style.setProperty('--ace-drag-s', (DRAG_SCALE + (1 - DRAG_SCALE) * near).toFixed(4));
+      slide.style.setProperty('--ace-drag-o', (DRAG_OPACITY + (1 - DRAG_OPACITY) * near).toFixed(3));
+      slide.style.setProperty('--ace-drag-origin', left < 0 ? 'right center' : 'left center');
+    });
+  });
+  ['touchEnd', 'slideChange', 'resize'].forEach((name) => swiper.on(name, clearDrag));
+
   container.addEventListener('click', (event) => {
     if (!PEEK_DESKTOP.matches || swiper.destroyed) {
       return;

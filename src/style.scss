@@ -2542,6 +2542,23 @@ $spacing-mobile: 10px;
 		&.ace-tuck-next .swiper-initialized > .swiper-wrapper > .swiper-slide-next {
 			transform: translateX(calc(-1 * var(--ace-pc-tuck))) scale(1);
 		}
+
+		// Sizes ease between resting states (a slide arriving grows, the one leaving sits back)...
+		.swiper-initialized > .swiper-wrapper > .swiper-slide {
+			transition: opacity .3s ease, transform .3s cubic-bezier(.2, .7, .2, 1);
+		}
+		// ...and follow the finger or pointer exactly while dragging (frontend.js sets the values).
+		&.ace-pc-dragging .swiper-initialized > .swiper-wrapper > .swiper-slide {
+			transform: scale(var(--ace-drag-s, 1)) !important;
+			transform-origin: var(--ace-drag-origin, center) !important;
+			opacity: var(--ace-drag-o, 1) !important;
+			transition: none !important;
+		}
+	}
+	@media (min-width: 1025px) and (prefers-reduced-motion: reduce) {
+		.swiper-initialized > .swiper-wrapper > .swiper-slide {
+			transition: none;
+		}
 	}
 
 	&.ace-tuck-prev .ace-pc-bar > .swiper-button-prev {
