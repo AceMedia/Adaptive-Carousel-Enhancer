@@ -446,9 +446,11 @@ function bindPeekControls(swiper, blockWrapper, container, autoplayWanted) {
   // While the timer is held for an interaction, the active dot becomes a play button that carries on.
   const PLAY_LABEL = 'Play the slideshow';
   let labelled = null;
-  const isHeld = () => !!(autoplayWanted && swiper.autoplay && swiper.params.autoplay &&
-    (!swiper.autoplay.running || swiper.autoplay.paused) && !wantsReducedMotion() &&
-    !document.documentElement.classList.contains('pp-intro-c'));
+  // Swiper also pauses itself for a moment while each slide moves; only a reader's own pause counts
+  // (a pointer over the carousel, focus inside it), or autoplay stopped by a swipe or click.
+  const isHeld = () => !!(autoplayWanted && swiper.autoplay && swiper.params.autoplay && !wantsReducedMotion() &&
+    !document.documentElement.classList.contains('pp-intro-c') &&
+    (!swiper.autoplay.running || (swiper.autoplay.paused && (blockWrapper.matches(':hover') || blockWrapper.aceFocusPaused))));
   const markHeld = () => {
     const held = isHeld();
     blockWrapper.classList.toggle('ace-pc-paused', held);
@@ -464,6 +466,7 @@ function bindPeekControls(swiper, blockWrapper, container, autoplayWanted) {
     }
   };
   ['autoplayStart', 'autoplayStop', 'autoplayPause', 'autoplayResume', 'paginationUpdate'].forEach((name) => swiper.on(name, markHeld));
+  ['pointerenter', 'pointerleave', 'focusin', 'focusout'].forEach((name) => blockWrapper.addEventListener(name, () => requestAnimationFrame(markHeld)));
   markHeld();
   bar?.addEventListener('click', (event) => {
     const bullet = event.target.closest('.swiper-pagination-bullet-active');
