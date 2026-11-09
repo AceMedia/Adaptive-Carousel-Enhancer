@@ -579,10 +579,14 @@ function bindTitleFit(swiper, blockWrapper) {
     run();
   }
   let timer = 0;
-  window.addEventListener('resize', () => {
+  const later = () => {
     clearTimeout(timer);
     timer = setTimeout(run, 160);
-  });
+  };
+  window.addEventListener('resize', later);
+  // The reader's font style and headline settings change the type, so the titles are fitted again.
+  document.addEventListener('pp:font-style', later);
+  document.addEventListener('pp:headline-sizes', later);
   swiper.on('breakpoint', run);
 }
 
