@@ -2376,18 +2376,20 @@ $spacing-mobile: 10px;
 			display: none;
 		}
 
+		// The middle dot, a touch larger than the others.
 		&::before {
 			content: '';
 			position: absolute;
-			inset: 8px;
+			inset: 6.75px;
 			border-radius: 50%;
 			background: var(--ace-pc-on);
 		}
 	}
 
+	// Drawn in close round the middle dot, with only a hairline of space between them.
 	.ace-pc-ring {
 		position: absolute;
-		inset: 1px;
+		inset: 3px;
 		display: none;
 		pointer-events: none;
 
@@ -2407,7 +2409,7 @@ $spacing-mobile: 10px;
 	.ace-pc-ring-track,
 	.ace-pc-ring-fill {
 		fill: none;
-		stroke-width: 2.8;
+		stroke-width: 3.4; // the ring is drawn smaller, so a wider stroke keeps the same weight
 	}
 
 	// The part of the timer still to run: a lighter grey.
