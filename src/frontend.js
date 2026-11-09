@@ -527,13 +527,9 @@ function bindPeekControls(swiper, blockWrapper, container, autoplayWanted) {
     button.addEventListener('mouseleave', () => tuck(''));
     button.addEventListener('blur', () => tuck(''));
   });
+  // A move drops the tuck, and the slide that arrives at the side stays sat back, faded and smaller,
+  // even with the pointer still on its arrow: it only comes forward when the reader points at it again.
   swiper.on('slideChangeTransitionStart', () => tuck(''));
-  swiper.on('slideChangeTransitionEnd', () => {
-    const hovered = bar?.querySelector('.swiper-button-prev:hover, .swiper-button-next:hover');
-    if (hovered) {
-      tuck(hovered.classList.contains('swiper-button-prev') ? 'prev' : 'next');
-    }
-  });
 
   // Swiper only pauses for a pointer over the slider itself; the arrows and bullets now sit
   // outside it, so pause for them too.
