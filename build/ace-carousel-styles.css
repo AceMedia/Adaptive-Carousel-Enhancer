@@ -2164,7 +2164,7 @@ ul.swiper-wrapper {
   border-radius: 50%;
   background: transparent !important;
   opacity: var(--ace-pc-dot-opacity) !important;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.2s ease, transform 0.25s cubic-bezier(0.2, 0.7, 0.2, 1), margin 0.25s cubic-bezier(0.2, 0.7, 0.2, 1);
   cursor: pointer;
 }
 .swiper-slider-block.ace-peek-controls .ace-pc-bar .swiper-pagination-bullet::after {
@@ -2173,12 +2173,18 @@ ul.swiper-wrapper {
   inset: 8px;
   border-radius: 50%;
   background: var(--ace-pc-dot);
+  transition: transform 0.2s ease;
 }
 .swiper-slider-block.ace-peek-controls .ace-pc-bar .swiper-pagination-bullet:hover {
   --ace-pc-dot-opacity: .8;
 }
+.swiper-slider-block.ace-peek-controls .ace-pc-bar .swiper-pagination-bullet:hover::after {
+  transform: scale(1.45);
+}
 .swiper-slider-block.ace-peek-controls .ace-pc-bar .swiper-pagination-bullet-active {
   opacity: 1 !important;
+  transform: scale(1.3);
+  margin: 0 4px !important;
 }
 .swiper-slider-block.ace-peek-controls .ace-pc-bar .swiper-pagination-bullet-active::after {
   display: none;
@@ -2209,11 +2215,11 @@ ul.swiper-wrapper {
 .swiper-slider-block.ace-peek-controls .ace-pc-ring-track,
 .swiper-slider-block.ace-peek-controls .ace-pc-ring-fill {
   fill: none;
-  stroke-width: 2;
+  stroke-width: 2.8;
 }
 .swiper-slider-block.ace-peek-controls .ace-pc-ring-track {
   stroke: var(--ace-pc-dot);
-  stroke-opacity: 0.3;
+  stroke-opacity: 0.16;
 }
 .swiper-slider-block.ace-peek-controls .ace-pc-ring-fill {
   stroke: var(--ace-pc-on);
