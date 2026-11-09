@@ -446,11 +446,11 @@ function bindPeekControls(swiper, blockWrapper, container, autoplayWanted) {
   // While the timer is held for an interaction, the active dot becomes a play button that carries on.
   const PLAY_LABEL = 'Play the slideshow';
   let labelled = null;
-  // Swiper also pauses itself for a moment while each slide moves; only a reader's own pause counts
-  // (a pointer over the carousel, focus inside it), or autoplay stopped by a swipe or click.
+  // The play button is only for a slideshow a reader has stopped (a swipe, an arrow or a dot, which
+  // stop autoplay); pointing at the carousel or focusing inside it only pauses the timer for as long as
+  // that lasts, so the dot stays a dot and the ring simply holds still.
   const isHeld = () => !!(autoplayWanted && swiper.autoplay && swiper.params.autoplay && !wantsReducedMotion() &&
-    !document.documentElement.classList.contains('pp-intro-c') &&
-    (!swiper.autoplay.running || (swiper.autoplay.paused && (blockWrapper.matches(':hover') || blockWrapper.aceFocusPaused))));
+    !document.documentElement.classList.contains('pp-intro-c') && !swiper.autoplay.running);
   const markHeld = () => {
     const held = isHeld();
     blockWrapper.classList.toggle('ace-pc-paused', held);
