@@ -356,8 +356,8 @@ function wantsReducedMotion() {
 // move into a bar after the slider), then laid out from what is measured.
 const PC_MIN_STRIP = 22; // below this the side slides are too thin to carry an arrow
 const PC_RING = '<span class="ace-pc-ring" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false">' +
-  '<circle class="ace-pc-ring-track" cx="12" cy="12" r="10.5" pathLength="100"></circle>' +
-  '<circle class="ace-pc-ring-fill" cx="12" cy="12" r="10.5" pathLength="100"></circle></svg></span>';
+  '<circle class="ace-pc-ring-track" cx="12" cy="12" r="9.6" pathLength="100"></circle>' +
+  '<circle class="ace-pc-ring-fill" cx="12" cy="12" r="9.6" pathLength="100"></circle></svg></span>';
 
 function buildPeekControls(blockWrapper, container, config) {
   const bar = document.createElement('div');

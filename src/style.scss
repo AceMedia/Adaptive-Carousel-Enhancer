@@ -2376,11 +2376,12 @@ $spacing-mobile: 10px;
 			display: none;
 		}
 
-		// The middle dot, a touch larger than the others.
+		// The middle dot, a touch larger than the others. Whole-pixel insets on every side keep it and
+		// the ring on exactly the same centre.
 		&::before {
 			content: '';
 			position: absolute;
-			inset: 6.75px;
+			inset: 7px;
 			border-radius: 50%;
 			background: var(--ace-pc-on);
 		}
@@ -2409,7 +2410,7 @@ $spacing-mobile: 10px;
 	.ace-pc-ring-track,
 	.ace-pc-ring-fill {
 		fill: none;
-		stroke-width: 3.4; // the ring is drawn smaller, so a wider stroke keeps the same weight
+		stroke-width: 2.4; // a slim ring; drawn at 18px, so about 1.8px before the bullet's scale
 	}
 
 	// The part of the timer still to run: a lighter grey.
