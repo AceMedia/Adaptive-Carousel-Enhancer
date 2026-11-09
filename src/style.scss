@@ -2372,10 +2372,6 @@ $spacing-mobile: 10px;
 		transform: scale(1.3);
 		margin: 0 4px !important;
 
-		&::after {
-			display: none;
-		}
-
 		// The middle dot, a touch larger than the others. Whole-pixel insets on every side keep it and
 		// the ring on exactly the same centre.
 		&::before {
@@ -2384,6 +2380,7 @@ $spacing-mobile: 10px;
 			inset: 7px;
 			border-radius: 50%;
 			background: var(--ace-pc-on);
+			z-index: 1;
 		}
 	}
 
@@ -2403,8 +2400,18 @@ $spacing-mobile: 10px;
 		}
 	}
 
+	// Each time a dot becomes the active one, its ring grows out from behind it, so the timer is only
+	// in view while it is needed.
 	.swiper-pagination-bullet-active .ace-pc-ring {
 		display: block;
+		z-index: 0;
+		animation: ace-pc-ring-in .45s cubic-bezier(.2, .8, .2, 1) backwards;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.swiper-pagination-bullet-active .ace-pc-ring {
+			animation: none;
+		}
 	}
 
 	.ace-pc-ring-track,
@@ -2424,6 +2431,38 @@ $spacing-mobile: 10px;
 		stroke-linecap: round;
 		stroke-dasharray: 100;
 		stroke-dashoffset: 0;
+	}
+
+	// The middle dot grows smoothly when the timer pauses (below).
+	.ace-pc-bar .swiper-pagination-bullet-active::before {
+		transition: inset .3s cubic-bezier(.2, .8, .2, 1);
+	}
+
+	.ace-pc-bar .swiper-pagination-bullet-active::after {
+		content: '';
+		position: absolute;
+		inset: 7px 6.5px 7px 8.5px;
+		background: #fff;
+		clip-path: polygon(0 0, 100% 50%, 0 100%);
+		transform: none !important;
+		z-index: 2;
+		opacity: 0;
+		scale: .4;
+		transition: opacity .2s ease, scale .3s cubic-bezier(.2, .8, .2, 1);
+	}
+
+	// Paused (a pointer over it, focus inside it, or a swipe or click that stopped autoplay): the
+	// active dot grows over its timer ring and becomes a play button that carries on.
+	&.ace-pc-paused .ace-pc-bar .swiper-pagination-bullet-active {
+		&::before {
+			inset: 2px;
+		}
+
+		&::after {
+			display: block;
+			opacity: 1;
+			scale: 1;
+		}
 	}
 
 	// No autoplay, or it has stopped: the active bullet is simply larger, with a solid ring.
@@ -2495,12 +2534,14 @@ $spacing-mobile: 10px;
 	}
 
 	// The tuck: the side slide moves in and lifts; its arrow strip widens with it.
-	.swiper-initialized > .swiper-wrapper > .swiper-slide {
-		transition: opacity .3s ease, transform .35s cubic-bezier(.2, .7, .2, 1), filter .3s ease;
+	// Slides change at the slider's own speed and easing (--ace-pc-speed is set from it, --ace-pc-ease
+	// can be set by the theme), so the side slides settle in step with the move.
+	.swiper-initialized > .swiper-wrapper {
+		--swiper-wrapper-transition-timing-function: var(--ace-pc-ease, ease);
 	}
 
 	.swiper-initialized > .swiper-wrapper > .swiper-slide {
-		transition: opacity .3s ease, transform .35s cubic-bezier(.2, .7, .2, 1), box-shadow .3s ease;
+		transition: opacity var(--ace-pc-speed, .3s) ease, transform var(--ace-pc-speed, .35s) var(--ace-pc-ease, cubic-bezier(.2, .7, .2, 1)), box-shadow .3s ease;
 	}
 
 	// The hovered side slide comes forward: full opacity, above the current slide, with a glow that
@@ -2511,6 +2552,7 @@ $spacing-mobile: 10px;
 		z-index: 5;
 		opacity: 1 !important;
 		box-shadow: var(--ace-pc-glow);
+		transition: opacity .3s ease, transform .35s cubic-bezier(.2, .7, .2, 1), box-shadow .3s ease; // the tuck stays quick
 	}
 
 	&.ace-tuck-prev .swiper-initialized > .swiper-wrapper > .swiper-slide-prev {
@@ -2622,6 +2664,10 @@ $spacing-mobile: 10px;
 
 // The reader's own Reduce motion switch: the same as the device setting.
 html.ace-a11y-reduce-motion .swiper-slider-block.ace-peek-controls {
+	.swiper-pagination-bullet-active .ace-pc-ring {
+		animation: none;
+	}
+
 	.swiper-initialized > .swiper-wrapper > .swiper-slide,
 	.ace-pc-bar > .swiper-button-prev,
 	.ace-pc-bar > .swiper-button-next,
@@ -2706,5 +2752,12 @@ html.ace-a11y-reduce-motion .swiper-slider-block .swiper-slide :is(.wp-block-pos
 @media (prefers-reduced-motion: reduce) {
 	.swiper-slider-block .swiper-slide :is(.wp-block-post-title, .wp-block-post-title ~ *) {
 		transition: none;
+	}
+}
+
+@keyframes ace-pc-ring-in {
+	from {
+		opacity: 0;
+		scale: .5;
 	}
 }

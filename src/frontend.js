@@ -440,6 +440,54 @@ function bindPeekControls(swiper, blockWrapper, container, autoplayWanted) {
   markStopped();
   ['autoplayStart', 'autoplayStop'].forEach((name) => swiper.on(name, markStopped));
 
+  // Slides change at the slider's speed; the side slides' own transitions follow it.
+  blockWrapper.style.setProperty('--ace-pc-speed', `${Math.max(0, parseInt(swiper.params.speed, 10) || 0)}ms`);
+
+  // While the timer is held for an interaction, the active dot becomes a play button that carries on.
+  const PLAY_LABEL = 'Play the slideshow';
+  let labelled = null;
+  const isHeld = () => !!(autoplayWanted && swiper.autoplay && swiper.params.autoplay &&
+    (!swiper.autoplay.running || swiper.autoplay.paused) && !wantsReducedMotion() &&
+    !document.documentElement.classList.contains('pp-intro-c'));
+  const markHeld = () => {
+    const held = isHeld();
+    blockWrapper.classList.toggle('ace-pc-paused', held);
+    const active = blockWrapper.querySelector('.ace-pc-bar .swiper-pagination-bullet-active');
+    if (labelled && (labelled !== active || !held)) {
+      labelled.setAttribute('aria-label', labelled.aceLabel || '');
+      labelled = null;
+    }
+    if (held && active && labelled !== active) {
+      active.aceLabel = active.getAttribute('aria-label') || '';
+      active.setAttribute('aria-label', PLAY_LABEL);
+      labelled = active;
+    }
+  };
+  ['autoplayStart', 'autoplayStop', 'autoplayPause', 'autoplayResume', 'paginationUpdate'].forEach((name) => swiper.on(name, markHeld));
+  markHeld();
+  bar?.addEventListener('click', (event) => {
+    const bullet = event.target.closest('.swiper-pagination-bullet-active');
+    if (!bullet || !blockWrapper.classList.contains('ace-pc-paused')) {
+      return;
+    }
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    bar.aceHoverPaused = false;
+    blockWrapper.aceFocusPaused = false;
+    if (!swiper.autoplay.running) {
+      swiper.autoplay.start();
+    } else if (swiper.autoplay.paused) {
+      swiper.autoplay.resume();
+    }
+    markHeld();
+  }, true);
+  bar?.addEventListener('keydown', (event) => {
+    if ((event.key === 'Enter' || event.key === ' ') && event.target.closest('.swiper-pagination-bullet-active') && blockWrapper.classList.contains('ace-pc-paused')) {
+      event.preventDefault();
+      event.target.click();
+    }
+  }, true);
+
   // Keyboard focus inside the carousel pauses the timer, as hovering does.
   blockWrapper.addEventListener('focusin', () => {
     if (swiper.autoplay?.running && !swiper.autoplay.paused) {
