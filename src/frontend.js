@@ -589,10 +589,6 @@ function fitSlideTitles(swiper, blockWrapper) {
   blockWrapper.classList.add('ace-titles-fitting');
   const height = Math.max(...slides.map((slide) => slide.getBoundingClientRect().height));
   slides.forEach((slide) => { slide.style.minHeight = `${Math.round(height)}px`; });
-  // All the slides are fitted together, one step at a time: every title is set to its next trial size,
-  // then all are measured in one pass. Fitting them one by one cost a whole-page layout per trial per
-  // slide (well over a hundred on a looping carousel); this costs one per step.
-  const jobs = [];
   slides.forEach((slide, i) => {
     const title = titles[i];
     if (!title) {
@@ -610,30 +606,25 @@ function fitSlideTitles(swiper, blockWrapper) {
     const titleHeight = title.getBoundingClientRect().height;
     const budget = inner - (group.getBoundingClientRect().height - titleHeight) - 4;
     const max = Math.max(FIT_MIN, Math.min(64, title.clientWidth * 0.16));
-    jobs.push({ title, budget, max, low: FIT_MIN, high: max, done: false, trial: max });
-  });
-  const fits = (job) => job.title.getBoundingClientRect().height <= job.budget && job.title.scrollWidth <= job.title.clientWidth + 1;
-  // First try every title at its largest size; those that fit are finished.
-  jobs.forEach((job) => { job.title.style.fontSize = `${job.max}px`; });
-  jobs.forEach((job) => { job.done = fits(job); });
-  for (let step = 0; step < 7; step++) {
-    const open = jobs.filter((job) => !job.done);
-    if (!open.length) {
-      break;
+    const fits = (size) => {
+      title.style.fontSize = `${size}px`;
+      return title.getBoundingClientRect().height <= budget && title.scrollWidth <= title.clientWidth + 1;
+    };
+    if (fits(max)) {
+      return;
     }
-    open.forEach((job) => {
-      job.trial = (job.low + job.high) / 2;
-      job.title.style.fontSize = `${job.trial}px`;
-    });
-    open.forEach((job) => {
-      if (fits(job)) {
-        job.low = job.trial;
+    let low = FIT_MIN;
+    let high = max;
+    for (let step = 0; step < 7; step++) {
+      const mid = (low + high) / 2;
+      if (fits(mid)) {
+        low = mid;
       } else {
-        job.high = job.trial;
+        high = mid;
       }
-    });
-  }
-  jobs.filter((job) => !job.done).forEach((job) => { job.title.style.fontSize = `${Math.floor(job.low)}px`; });
+    }
+    title.style.fontSize = `${Math.floor(low)}px`;
+  });
   blockWrapper.classList.remove('ace-titles-fitting');
   blockWrapper.classList.add('ace-titles-fitted');
 }
