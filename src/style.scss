@@ -2768,3 +2768,62 @@ html.ace-a11y-reduce-motion .swiper-slider-block .swiper-slide :is(.wp-block-pos
 		scale: .5;
 	}
 }
+
+// ---------------------------------------------------------------------------
+// Before the script: a looping, peeking carousel shows its neighbours already
+// ---------------------------------------------------------------------------
+// The slides either side of the first (the last post on the left, the second on the right) are laid
+// exactly where Swiper will put them, so they paint with the page instead of after the script, and
+// nothing moves when it starts: the next slide one frame plus a gap to the right, the last one the
+// same to the left. Phones: full size, an 8px gap. Desktop: 16px gap, at 94% scale and 55% opacity,
+// shrunk towards the current slide, as the running carousel shows them. The other slides stay out.
+@mixin ace-pre-peek($gap, $scale: 1, $dim: 1) {
+	.swiper:not(.swiper-initialized) {
+		overflow: visible;
+	}
+
+	.swiper:not(.swiper-initialized) .wp-block-post-template {
+		display: grid !important;
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.swiper:not(.swiper-initialized) .wp-block-post-template > * {
+		grid-area: 1 / 1;
+		min-width: 0;
+		display: flex !important;
+		visibility: visible !important;
+	}
+
+	.swiper:not(.swiper-initialized) .wp-block-post-template > *:not(:first-child):not(:nth-child(2)):not(:last-child) {
+		display: none !important;
+	}
+
+	.swiper:not(.swiper-initialized) .wp-block-post-template > :nth-child(2):not(:last-child) {
+		transform: translateX(calc(100% + #{$gap})) scale($scale);
+		transform-origin: 0 50%;
+		opacity: $dim;
+	}
+
+	.swiper:not(.swiper-initialized) .wp-block-post-template > :last-child:not(:nth-child(2)) {
+		transform: translateX(calc(-100% - #{$gap})) scale($scale);
+		transform-origin: 100% 50%;
+		opacity: $dim;
+	}
+
+	// Their images are on screen too (the theme loads the last slide's eagerly).
+	.swiper:not(.swiper-initialized) .wp-block-post-template > :is(:nth-child(2), :last-child) :is(.wp-block-post-featured-image img, .wp-block-cover__image-background) {
+		display: block !important;
+	}
+}
+
+@media (max-width: 781px) {
+	.wp-block-ace-adaptive-carousel[data-slides="1"][data-loop="true"][data-mobile-peek="true"]:not(.ace-carousel-ready) {
+		@include ace-pre-peek(8px);
+	}
+}
+
+@media (min-width: 782px) {
+	.wp-block-ace-adaptive-carousel[data-slides="1"][data-loop="true"][data-desktop-peek="true"]:not(.ace-carousel-ready) {
+		@include ace-pre-peek(16px, .94, .55);
+	}
+}
