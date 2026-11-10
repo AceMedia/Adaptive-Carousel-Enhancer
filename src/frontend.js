@@ -673,6 +673,8 @@ function bindTitleFit(swiper, blockWrapper) {
   // The reader's font style and headline settings change the type, so the titles are fitted again.
   document.addEventListener('pp:font-style', later);
   document.addEventListener('pp:headline-sizes', later);
+  // A font switch asks for the new face's sizes straight away, before it types the new face in.
+  document.addEventListener('pp:fit-now', run);
   swiper.on('breakpoint', run);
 }
 
