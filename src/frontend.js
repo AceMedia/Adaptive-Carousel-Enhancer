@@ -1055,8 +1055,18 @@ function initCarousels() {
     // A looping slider moves its last slide in front of the first as it starts, and here it was left
     // showing that last slide (realIndex 6 on a seven-post carousel), so the carousel opened on the
     // oldest post and jumped away from the first one the page had shown. Put it on its first post.
-    if (config.loop && !swiper.destroyed && swiper.realIndex !== (config.initialSlide || 0)) {
-      swiper.slideToLoop(config.initialSlide || 0, 0, false);
+    // At start the slider can have no size yet (its slides measure 0 and the move does nothing), so this
+    // waits until it has one: the next frame, or its first resize.
+    if (config.loop) {
+      const first = config.initialSlide || 0;
+      const toFirst = () => {
+        if (!swiper.destroyed && swiper.size > 0 && swiper.realIndex !== first) {
+          swiper.slideToLoop(first, 0, false);
+        }
+      };
+      toFirst();
+      requestAnimationFrame(toFirst);
+      swiper.once('resize', toFirst);
     }
 
     if (desktopPeek) {
