@@ -2132,7 +2132,7 @@ $spacing-mobile: 10px;
 
 // Single-slide carousels show only their first slide until Swiper starts, rather than stacking
 // every slide and collapsing the page when it does.
-.wp-block-ace-adaptive-carousel[data-slides="1"]:not(:has(.swiper-initialized)) .wp-block-post-template > *:not(:first-child) {
+.wp-block-ace-adaptive-carousel[data-slides="1"]:not(.ace-carousel-ready) .wp-block-post-template > *:not(:first-child) {
 	display: none !important;
 }
 

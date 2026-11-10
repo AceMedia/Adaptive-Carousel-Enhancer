@@ -1048,6 +1048,9 @@ function initCarousels() {
 
     // Initialize Swiper with configuration
     let swiper = new Swiper(container, config);
+    // A plain class says the slider has started, for the stylesheet: a :has(.swiper-initialized) test
+    // made every DOM change anywhere on the page re-style it (about 180ms each on a slow phone).
+    container.closest('.wp-block-ace-adaptive-carousel')?.classList.add('ace-carousel-ready');
 
     if (desktopPeek) {
       bindPeekClicks(swiper, container);
