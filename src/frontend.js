@@ -1739,7 +1739,7 @@ function needsExtras() {
   });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+function startCarousels() {
   if (!needsExtras()) {
     initCarousels();
     return;
@@ -1748,4 +1748,12 @@ document.addEventListener('DOMContentLoaded', () => {
     .then(({ default: extras }) => Swiper.use(extras))
     .catch(() => {}) // without them the carousel still runs, as a plain slide
     .then(initCarousels);
-});
+}
+// The script is deferred, so the page is parsed by the time it runs: start straight away rather than
+// waiting for DOMContentLoaded, which only fires once every other deferred script has run too. The
+// slides beside the first only show once the slider is going, so this is when they first paint.
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', startCarousels);
+} else {
+  startCarousels();
+}
