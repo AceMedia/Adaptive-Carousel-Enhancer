@@ -1464,7 +1464,14 @@ $spacing-mobile: 10px;
           transform: var(--original-transform, none) !important;
         }
         
-        // Additional isolation for nested elements
+      }
+
+      // Additional isolation for nested elements. No [class*="video-"] here: a class-substring test
+      // above a universal descendant makes every class change on any element re-style its whole
+      // subtree (about 100ms a time on a long page), so the substring match stays on the media
+      // element itself only.
+      iframe, video, embed, object, .jarallax-video, .wp-block-embed, .wp-block-video, .elementor-video,
+      [id*="video-"], [id*="VideoWorker"], .jarallax-container, .jarallax, [data-jarallax] {
         * {
           transform: inherit !important;
           transform-style: inherit !important;
@@ -1585,7 +1592,11 @@ $spacing-mobile: 10px;
           filter: none !important;
           transition: none !important;
           
-          // Protect nested elements too
+        }
+
+        // Protect nested elements too (no [class*="video-"]: see the slide rules above).
+        iframe, video, embed, object, .jarallax-video, .wp-block-embed, .wp-block-video, .elementor-video,
+        [id*="video-"], [id*="VideoWorker"], .jarallax-container, .jarallax, [data-jarallax] {
           * {
             pointer-events: inherit !important;
             transform: inherit !important;

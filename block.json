@@ -9,6 +9,6 @@
   "viewScript": "file:./build/frontend.js",
   "editorStyle": "file:./build/ace-carousel-styles.css",
   "style": "file:./build/ace-carousel-styles.css",
-  "version": "0.2.19",
+  "version": "0.2.23",
   "textdomain": "adaptive-carousel-enhancer"
 }
