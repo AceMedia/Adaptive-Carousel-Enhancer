@@ -1046,8 +1046,11 @@ function initCarousels() {
       container.classList.add('arrows-outside');
     }
 
-    // Initialize Swiper with configuration
+    // Initialize Swiper with configuration. While it starts, the "first slide only" styles stand aside
+    // so it measures every slide (style.scss); nothing paints in between.
+    container.classList.add('ace-swiper-starting');
     let swiper = new Swiper(container, config);
+    container.classList.remove('ace-swiper-starting');
     // A plain class says the slider has started, for the stylesheet: a :has(.swiper-initialized) test
     // made every DOM change anywhere on the page re-style it (about 180ms each on a slow phone).
     container.closest('.wp-block-ace-adaptive-carousel')?.classList.add('ace-carousel-ready');
@@ -1238,7 +1241,9 @@ function initCarousels() {
         swiper.destroy(true, true);
         
         // Reinitialize Swiper with updated config
+        container.classList.add('ace-swiper-starting');
         swiper = new Swiper(container, config);
+        container.classList.remove('ace-swiper-starting');
 
         if (desktopPeek || mobilePeek) {
           bindPeekScrollGuard(swiper, blockWrapper);

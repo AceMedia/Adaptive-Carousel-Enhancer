@@ -2110,8 +2110,10 @@ $spacing-mobile: 10px;
     min-width: 100%;
   }
 
-  // Hide every slide after the first so there is no multi-slide flash
-  .swiper-wrapper > * + * {
+  // Hide every slide after the first so there is no multi-slide flash (not while it is starting:
+  // Swiper measures the slides then, and hidden ones measure nothing, which left a looping carousel
+  // on the wrong slide).
+  &:not(.ace-swiper-starting) .swiper-wrapper > * + * {
     display: none;
   }
 }
@@ -2143,18 +2145,18 @@ $spacing-mobile: 10px;
 // image column's height, and the rest only add the height of their text. Desktop only: the phone
 // layout sizes its slides itself (_carousel-slides.scss in the theme).
 @media (min-width: 782px) {
-	.wp-block-ace-adaptive-carousel[data-slides="1"] .swiper:not(.swiper-initialized) .wp-block-post-template {
+	.wp-block-ace-adaptive-carousel[data-slides="1"] .swiper:not(.swiper-initialized):not(.ace-swiper-starting) .wp-block-post-template {
 		display: grid !important;
 		grid-template-columns: minmax(0, 1fr);
 	}
 
-	.wp-block-ace-adaptive-carousel[data-slides="1"] .swiper:not(.swiper-initialized) .wp-block-post-template > * {
+	.wp-block-ace-adaptive-carousel[data-slides="1"] .swiper:not(.swiper-initialized):not(.ace-swiper-starting) .wp-block-post-template > * {
 		grid-area: 1 / 1;
 		min-width: 0;
 		display: flex !important; // as a Swiper slide is, so the first slide's cover fills the full height
 	}
 
-	.wp-block-ace-adaptive-carousel[data-slides="1"] .swiper:not(.swiper-initialized) .wp-block-post-template > *:not(:first-child) {
+	.wp-block-ace-adaptive-carousel[data-slides="1"] .swiper:not(.swiper-initialized):not(.ace-swiper-starting) .wp-block-post-template > *:not(:first-child) {
 		visibility: hidden;
 
 		:is(.wp-block-post-featured-image img, .wp-block-cover__image-background) {
