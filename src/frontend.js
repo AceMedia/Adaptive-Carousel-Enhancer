@@ -1052,6 +1052,13 @@ function initCarousels() {
     // made every DOM change anywhere on the page re-style it (about 180ms each on a slow phone).
     container.closest('.wp-block-ace-adaptive-carousel')?.classList.add('ace-carousel-ready');
 
+    // A looping slider moves its last slide in front of the first as it starts, and here it was left
+    // showing that last slide (realIndex 6 on a seven-post carousel), so the carousel opened on the
+    // oldest post and jumped away from the first one the page had shown. Put it on its first post.
+    if (config.loop && !swiper.destroyed && swiper.realIndex !== (config.initialSlide || 0)) {
+      swiper.slideToLoop(config.initialSlide || 0, 0, false);
+    }
+
     if (desktopPeek) {
       bindPeekClicks(swiper, container);
     }
