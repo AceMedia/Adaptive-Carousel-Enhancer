@@ -1048,12 +1048,14 @@ function initCarousels() {
 
     // Initialize Swiper with configuration. While it starts, the "first slide only" styles stand aside
     // so it measures every slide (style.scss); nothing paints in between.
+    // A plain class says the slider is starting, for the stylesheet (a :has(.swiper-initialized) test
+    // made every DOM change anywhere on the page re-style it, about 180ms each on a slow phone). It goes
+    // on before Swiper starts: the first-slide-only rule it lifts hid the other slides with display:none,
+    // and Swiper leaves such slides out of its sums, which left a looping carousel on the wrong slide.
+    container.closest('.wp-block-ace-adaptive-carousel')?.classList.add('ace-carousel-ready');
     container.classList.add('ace-swiper-starting');
     let swiper = new Swiper(container, config);
     container.classList.remove('ace-swiper-starting');
-    // A plain class says the slider has started, for the stylesheet: a :has(.swiper-initialized) test
-    // made every DOM change anywhere on the page re-style it (about 180ms each on a slow phone).
-    container.closest('.wp-block-ace-adaptive-carousel')?.classList.add('ace-carousel-ready');
 
     // A looping slider moves its last slide in front of the first as it starts, and here it was left
     // showing that last slide (realIndex 6 on a seven-post carousel), so the carousel opened on the
