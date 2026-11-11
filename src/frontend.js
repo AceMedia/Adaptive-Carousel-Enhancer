@@ -413,7 +413,25 @@ function bindPeekControls(swiper, blockWrapper, container, autoplayWanted) {
   // Measure again once the slider and any side columns have settled (a menu folding away moves the
   // frame without always resizing it).
   [250, 900].forEach((delay) => setTimeout(layout, delay));
-  ['pp:left-nav', 'transitionend'].forEach((name) => document.addEventListener(name, () => requestAnimationFrame(layout)));
+  // Only transitions that can move the frame within the block: a box changing size outside the
+  // carousel (a side column, the left navigation). The carousel's own slides and dots, and paint-only
+  // changes anywhere (the ticker gliding, a colour fading), re-measured the page dozens of times a minute.
+  let layoutFrame = 0;
+  const queueLayout = () => {
+    if (!layoutFrame) {
+      layoutFrame = requestAnimationFrame(() => {
+        layoutFrame = 0;
+        layout();
+      });
+    }
+  };
+  const SIZING = /^(width|height|min-|max-|margin|padding|border-width|left|right|inset|flex|grid-template|font-size|letter-spacing|gap|column-gap)/;
+  document.addEventListener('pp:left-nav', queueLayout);
+  document.addEventListener('transitionend', (event) => {
+    if (SIZING.test(event.propertyName) && !blockWrapper.contains(event.target)) {
+      queueLayout();
+    }
+  });
   window.addEventListener('load', layout);
 
   // The timer ring on every bullet; only the active one shows it.
