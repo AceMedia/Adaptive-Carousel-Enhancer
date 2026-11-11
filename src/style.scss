@@ -2129,6 +2129,12 @@ $spacing-mobile: 10px;
   }
 }
 
+// A query's slide list sent in the wrapper's place (ul.ace-slide-list) fills the carousel as it did when
+// it was the wrapper's one child.
+.swiper-slider-block .swiper:not(.swiper-initialized) > .ace-slide-list {
+  min-width: 100%;
+}
+
 .swiper-slider-block[data-overflow-visible="true"] .swiper:not(.swiper-initialized),
 .swiper-slider-block[data-edge-fade="true"] .swiper:not(.swiper-initialized) {
   overflow: visible;

@@ -3,7 +3,7 @@
  * Plugin Name: Adaptive Carousel Enhancer
  * Description: Gutenberg block that turns inner blocks into SwiperJS slides.
  * Author: Shane Rounce
- * Version: 0.2.24
+ * Version: 0.2.25
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Text Domain: adaptive-carousel-enhancer
@@ -60,6 +60,37 @@ function ace_swiper_slider_block_render($attributes, $content) {
             if ( ! in_array( 'swiper-slide', $existing, true ) ) {
                 $existing[] = 'swiper-slide';
                 $child->setAttribute( 'class', implode( ' ', $existing ) );
+            }
+        }
+
+        // A query's slide list (the one list inside the wrapper) is sent in the wrapper's place. It keeps
+        // every class it had, so it is styled exactly as before until the script starts, and then takes the
+        // wrapper's role by class alone (frontend.js). The script used to build a new list and move every
+        // slide into it, which took the slides out of the page and put them back: the browser painted the
+        // first slide's image a second time and counted that later paint as the page's largest image.
+        $elements = [];
+        foreach ( $swiperWrapper->childNodes as $child ) {
+            if ( XML_ELEMENT_NODE === $child->nodeType ) {
+                $elements[] = $child;
+            }
+        }
+        if ( 1 === count( $elements ) && 'ul' === strtolower( $elements[0]->nodeName )
+            && 'swiper-wrapper' === trim( $swiperWrapper->getAttribute( 'class' ) ) && 1 === $swiperWrapper->attributes->length ) {
+            $list         = $elements[0];
+            $list_classes = array_values( array_filter( explode( ' ', $list->getAttribute( 'class' ) ) ) );
+            $is_template  = (bool) array_intersect( [ 'wp-block-post-template', 'wc-block-product-template' ], $list_classes );
+            $has_tile     = false;
+            foreach ( $list->childNodes as $item ) {
+                if ( XML_ELEMENT_NODE === $item->nodeType && in_array( 'ace-variation-tile', explode( ' ', $item->getAttribute( 'class' ) ), true ) ) {
+                    $has_tile = true; // the script drops these when it builds the list, so leave that carousel to it
+                    break;
+                }
+            }
+            if ( $is_template && ! $has_tile ) {
+                $list_classes[] = 'ace-slide-list';
+                $list->setAttribute( 'class', implode( ' ', $list_classes ) );
+                $swiperWrapper->removeChild( $list );
+                $swiperWrapper->parentNode->replaceChild( $list, $swiperWrapper );
             }
         }
 

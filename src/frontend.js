@@ -720,6 +720,17 @@ function initCarousels() {
     const bulletContrastMode = blockWrapper?.dataset.bulletContrastMode === 'true';
     const timerContrastMode = blockWrapper?.dataset.timerContrastMode !== 'false';
 
+    // A query's slide list arrives in the wrapper's place (ul.ace-slide-list, from the render callback). It
+    // takes the wrapper's role here by class alone, ending with the same classes the list built below has,
+    // so its slides are never taken out of the page and put back: that made the browser paint the first
+    // slide's image a second time when the carousel started.
+    const servedList = Array.from(container.children).find((child) => child.tagName === 'UL' && child.classList.contains('ace-slide-list'));
+    if (servedList) {
+      const servedWoo = servedList.classList.contains('wc-block-product-template');
+      const servedPosts = servedList.classList.contains('wp-block-post-template');
+      servedList.className = 'swiper-wrapper' + (servedWoo ? ' wc-block-product-template' : '') + (servedPosts ? ' wp-block-post-template' : '');
+    }
+
     // Check if the first child of the swiper-wrapper is a UL with supported template classes
     const wrapper = container.querySelector('.swiper-wrapper');
     if (wrapper && wrapper.firstElementChild && wrapper.firstElementChild.tagName === 'UL') {
