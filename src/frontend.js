@@ -10,6 +10,9 @@ import Navigation from 'swiper-modules/navigation.mjs';
 import Pagination from 'swiper-modules/pagination.mjs';
 
 Swiper.use([A11y, Autoplay, Keyboard, Navigation, Pagination]);
+// Shared with other sliders on the page (the bet ticker), so they need not download a Swiper of their own.
+window.aceSwiper = Swiper;
+document.dispatchEvent(new CustomEvent('ace-swiper:ready'));
 
 // ---------------------------------------------------------------------------
 // Animation helpers
